@@ -1,143 +1,143 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 :root {
-    --background: #080d12;
-    --background-secondary: #0c1117;
-    --surface: #111820;
-    --surface-hover: #151e28;
-    --surface-elevated: #17212b;
+  --background: #080d12;
+  --background-secondary: #0c1117;
+  --surface: #111820;
+  --surface-hover: #151e28;
+  --surface-elevated: #17212b;
 
-    --border: #202b36;
-    --border-hover: #30404f;
+  --border: #202b36;
+  --border-hover: #30404f;
 
-    --foreground: #e7ecf2;
-    --text-secondary: #929caa;
-    --text-muted: #626d7a;
+  --foreground: #e7ecf2;
+  --text-secondary: #929caa;
+  --text-muted: #626d7a;
 
-    --primary: #8b7cff;
-    --primary-hover: #9a8dff;
-    --primary-muted: #211d42;
+  --primary: #8b7cff;
+  --primary-hover: #9a8dff;
+  --primary-muted: #211d42;
 
-    --cyan: #22d3c5;
-    --cyan-muted: #103c3a;
-    --blue: #2698ff;
-    --green: #39d98a;
-    --yellow: #f5c542;
-    --red: #ef4444;
+  --cyan: #22d3c5;
+  --cyan-muted: #103c3a;
+  --blue: #2698ff;
+  --green: #39d98a;
+  --yellow: #f5c542;
+  --red: #ef4444;
 
-    --success: #39d98a;
-    --warning: #f5c542;
-    --danger: #ef4444;
-    --info: #2698ff;
+  --success: #39d98a;
+  --warning: #f5c542;
+  --danger: #ef4444;
+  --info: #2698ff;
 
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 10px;
-    --radius-xl: 12px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
 }
 
 @theme inline {
-    --color-background: var(--background);
-    --color-background-secondary: var(--background-secondary);
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
 
-    --color-surface: var(--surface);
-    --color-surface-hover: var(--surface-hover);
-    --color-surface-elevated: var(--surface-elevated);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-elevated: var(--surface-elevated);
 
-    --color-border: var(--border);
-    --color-border-hover: var(--border-hover);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
 
-    --color-foreground: var(--foreground);
-    --color-text-secondary: var(--text-secondary);
-    --color-text-muted: var(--text-muted);
+  --color-foreground: var(--foreground);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
 
-    --color-primary: var(--primary);
-    --color-primary-hover: var(--primary-hover);
-    --color-primary-muted: var(--primary-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-muted: var(--primary-muted);
 
-    --color-cyan: var(--cyan);
-    --color-blue: var(--blue);
-    --color-green: var(--green);
-    --color-yellow: var(--yellow);
-    --color-red: var(--red);
+  --color-cyan: var(--cyan);
+  --color-blue: var(--blue);
+  --color-green: var(--green);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
 
-    --color-success: var(--success);
-    --color-warning: var(--warning);
-    --color-danger: var(--danger);
-    --color-info: var(--info);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
 
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-    background: var(--background);
+  background: var(--background);
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
+  margin: 0;
+  min-height: 100vh;
 
-    background: var(--background);
-    color: var(--foreground);
+  background: var(--background);
+  color: var(--foreground);
 
-    font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-    background: rgba(139, 124, 255, 0.3);
-    color: #ffffff;
+  background: rgba(139, 124, 255, 0.3);
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--background);
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #27323d;
-    border-radius: 999px;
+  background: #27323d;
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #394754;
+  background: #394754;
 }
 
 input,
 textarea,
 select {
-    font: inherit;
+  font: inherit;
 }
 
 input::placeholder,
 textarea::placeholder {
-    color: var(--text-muted);
+  color: var(--text-muted);
 }
 
 button,
 a {
-    -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* =========================================================
@@ -145,37 +145,37 @@ a {
    ========================================================= */
 
 .techgraph-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
 .techgraph-input {
-    background: var(--background-secondary);
-    border: 1px solid var(--border);
-    color: var(--foreground);
-    border-radius: var(--radius-md);
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
 }
 
 .techgraph-input:focus {
-    border-color: var(--primary);
-    outline: none;
+  border-color: var(--primary);
+  outline: none;
 }
 
 .techgraph-button-primary {
-    background: var(--primary);
-    color: #080d12;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    transition:
-        background 150ms ease,
-        transform 150ms ease;
+  background: var(--primary);
+  color: #080d12;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition:
+    background 150ms ease,
+    transform 150ms ease;
 }
 
 .techgraph-button-primary:hover {
-    background: var(--primary-hover);
+  background: var(--primary-hover);
 }
 
 .techgraph-button-primary:active {
-    transform: translateY(1px);
+  transform: translateY(1px);
 }

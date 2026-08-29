@@ -1,20 +1,22 @@
-import { ReactNode } from 'react'
-import Navbar from './Navbar'
-import Sidebar from './Sidebar'
+import { ReactNode } from "react";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 interface DashBoardProps {
-    children: ReactNode
+  children: ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashBoardProps) => {
-    return (
-        <div className="flex gap-5 w-full h-dvh">
-            <Sidebar />
-            <div className="w-full flex flex-col">
-                <Navbar />
-                <main className="flex-1 align-middle justify-center m-1">{children}</main>
-            </div>
-        </div>
-    )
-}
-export default DashboardLayout
+  return (
+    <div className="flex h-dvh w-full gap-5">
+      <Sidebar />
+      <div className="flex w-full flex-col">
+        <Navbar />
+        <main className="m-1 flex-1 justify-center align-middle">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
+export default DashboardLayout;
