@@ -23,7 +23,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
   const segments = pathname.split("/").filter(Boolean)
 
   return (
-    <header className="border-border bg-surface/80 z-30 my-6 ml-0 mr-6 rounded-lg border px-4 backdrop-blur sm:px-6 lg:ml-6 flex h-14 items-center">
+    <header className="border-border bg-surface/80 z-30 my-6 mr-6 ml-0 flex h-14 items-center rounded-lg border px-4 backdrop-blur sm:px-6 lg:ml-6">
       <div className="flex w-full items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -56,7 +56,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                 <span key={href} className="flex items-center gap-1 truncate">
                   <ChevronRight className="text-text-muted h-3.5 w-3.5 shrink-0" />
                   {isLast ? (
-                    <span className="bg-primary/10 text-primary truncate rounded-md px-1.5 py-0.5 font-medium">
+                    <span className="text-primary truncate rounded-md px-1.5 py-0.5 font-medium">
                       {label}
                     </span>
                   ) : (
@@ -73,7 +73,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
           </nav>
         </div>
 
-        <div className="mx-auto hidden w-full max-w-md items-center lg:flex">
+        <div className="mx-auto hidden w-full max-w-md items-center md:w-1/3 lg:flex">
           <SearchInput placeholder="Search knowledge..." />
         </div>
 
