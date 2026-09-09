@@ -1,5 +1,5 @@
-"use client";
-import Image from "next/image";
+"use client"
+import Image from "next/image"
 import {
   BookOpenText,
   Brain,
@@ -10,18 +10,20 @@ import {
   Plus,
   Settings,
   Tags,
-} from "lucide-react";
-import Link from "next/link";
+} from "lucide-react"
+import Link from "next/link"
+import Button from "../ui/Button"
 
 const Sidebar = () => {
   return (
-    <div className="bg-surface border-border m-1 flex flex-col justify-between rounded-lg border p-2">
+    <div className="bg-surface border-border my-6 ml-6 flex h-full w-64 flex-col justify-between rounded-lg border p-2">
       <div className="space-y-2">
         <Image src="/image/brandLogo.png" alt="Logo" width={200} height={70} />
-        <button className="bg-primary hover:bg-primary-hover flex items-center justify-center gap-1 rounded-sm px-2 py-1 font-semibold text-amber-50 transition-colors">
+        <Button>
           <Plus size={16} />
           Add Connection
-        </button>
+        </Button>
+
         <h4 className="text-text-muted text-xs tracking-wide">MAIN</h4>
         <Link
           href="/dashboard"
@@ -77,6 +79,6 @@ const Sidebar = () => {
         </Link>
       </div>
     </div>
-  );
-};
-export default Sidebar;
+  )
+}
+export default Sidebar

@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import {
   Bell,
   ChevronDown,
@@ -10,19 +10,20 @@ import {
   Home,
   Menu,
   Search,
-} from "lucide-react";
+} from "lucide-react"
+import SearchInput from "../ui/SearchInput"
 
 type NavbarProps = {
-  onMenuClick?: () => void;
-};
+  onMenuClick?: () => void
+}
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
+  const [profileOpen, setProfileOpen] = useState(false)
+  const pathname = usePathname()
+  const segments = pathname.split("/").filter(Boolean)
 
   return (
-    <header className="border-border bg-surface/80 sticky top-0 z-30 m-1 flex h-16 items-center rounded-lg border px-4 backdrop-blur sm:px-6">
+    <header className="border-border bg-surface/80 z-30 my-6 ml-0 mr-6 rounded-lg border px-4 backdrop-blur sm:px-6 lg:ml-6 flex h-14 items-center">
       <div className="flex w-full items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -45,55 +46,46 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
               <Home size={18} />
             </Link>
             {segments.map((segment, index) => {
-              const href = "/" + segments.slice(0, index + 1).join("/");
-              const isLast = index === segments.length - 1;
+              const href = "/" + segments.slice(0, index + 1).join("/")
+              const isLast = index === segments.length - 1
               const label = segment
                 .replace(/[-_]/g, " ")
-                .replace(/\b\w/g, (c) => c.toUpperCase());
+                .replace(/\b\w/g, (c) => c.toUpperCase())
 
               return (
                 <span key={href} className="flex items-center gap-1 truncate">
                   <ChevronRight className="text-text-muted h-3.5 w-3.5 shrink-0" />
                   {isLast ? (
-                    <span className="text-foreground truncate font-medium">
+                    <span className="bg-primary/10 text-primary truncate rounded-md px-1.5 py-0.5 font-medium">
                       {label}
                     </span>
                   ) : (
                     <Link
                       href={href}
-                      className="text-text-muted hover:text-foreground truncate transition-colors"
+                      className="text-text-muted hover:text-foreground hover:bg-surface-hover truncate rounded-md px-1.5 py-0.5 transition-colors"
                     >
                       {label}
                     </Link>
                   )}
                 </span>
-              );
+              )
             })}
           </nav>
         </div>
 
-        {/* Center: Search */}
-        <div className="relative mx-auto hidden w-full max-w-md sm:block">
-          <Search className="text-text-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <input
-            type="search"
-            placeholder="Search knowledge..."
-            className="border-border bg-background-secondary text-foreground placeholder:text-text-muted focus:border-primary focus:bg-surface-elevated h-9 w-full rounded-lg border pr-4 pl-9 text-sm outline-none"
-          />
+        <div className="mx-auto hidden w-full max-w-md items-center lg:flex">
+          <SearchInput placeholder="Search knowledge..." />
         </div>
 
-        {/* Right */}
         <div className="flex items-center gap-2">
-          {/* Mobile search */}
           <button
             type="button"
             aria-label="Search"
-            className="text-text-secondary hover:bg-surface-hover rounded-lg p-2 sm:hidden"
+            className="text-text-secondary hover:bg-surface-hover rounded-lg p-2 lg:hidden"
           >
             <Search className="h-5 w-5" />
           </button>
 
-          {/* Notifications */}
           <button
             type="button"
             aria-label="Notifications"
@@ -103,7 +95,6 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             <span className="bg-danger ring-background absolute top-1.5 right-1.5 h-2 w-2 rounded-full ring-2" />
           </button>
 
-          {/* Profile */}
           <div className="relative">
             <button
               type="button"
@@ -154,6 +145,6 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
         </div>
       </div>
     </header>
-  );
-};
-export default Navbar;
+  )
+}
+export default Navbar
