@@ -95,7 +95,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
                   ? `${inputId}-helper`
                   : undefined
             }
-            className={`flex w-full cursor-pointer items-center justify-between rounded-md border bg-background-secondary px-3 py-2 text-left text-sm shadow-sm transition-colors duration-150 focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`flex h-10 w-full cursor-pointer items-center justify-between rounded-md border bg-background-secondary px-3 py-2 text-left text-sm shadow-sm transition-colors duration-150 focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
               leftIcon ? "pl-10" : ""
             } ${
               error

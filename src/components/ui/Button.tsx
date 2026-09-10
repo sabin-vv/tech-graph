@@ -18,19 +18,19 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
-  lg: "px-6 py-3 text-base",
+  sm: "h-8 px-3 py-1.5 text-sm",
+  md: "h-10 px-4 py-2 text-sm",
+  lg: "h-12 px-6 py-3 text-base",
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", loading, disabled, children, className = "", ...props }, ref) => {
+  ({ variant = "primary", size = "md", loading, disabled, children, className = "", type = "button", ...props }, ref) => {
     const isDisabled = disabled || loading
 
     return (
       <button
         ref={ref}
-        type="button"
+        type={type}
         disabled={isDisabled}
         className={`
           inline-flex cursor-pointer items-center justify-center rounded-md font-medium
