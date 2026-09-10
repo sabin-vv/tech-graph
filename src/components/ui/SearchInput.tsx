@@ -14,8 +14,12 @@ interface SearchInputProps
   value?: string
   onChange?: (value: string) => void
   onItemSelect?: (value: string) => void
+  onRemoveSelected?: () => void
   onClear?: () => void
-  fetchSuggestions?: (query: string) => Promise<string[]>
+  fetchSuggestions?: (
+    query: string,
+    signal: AbortSignal,
+  ) => Promise<string[]>
   placeholder?: string
   debounceMs?: number
 }
@@ -26,6 +30,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       value: controlledValue,
       onChange,
       onItemSelect,
+      onRemoveSelected,
       onClear,
       fetchSuggestions,
       placeholder = "Search...",
@@ -71,7 +76,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const handleRemoveSelected = () => {
       setSelected("")
-      onItemSelect?.("")
+      onRemoveSelected?.()
       onClear?.()
     }
 
@@ -80,6 +85,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         setInternalValue("")
       }
       onChange?.("")
+      onClear?.()
       setOpen(false)
       setSuggestions([])
     }
@@ -109,7 +115,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         const controller = new AbortController()
         abortRef.current = controller
         try {
-          const results = await fetchSuggestions(value)
+          const results = await fetchSuggestions(value, controller.signal)
           if (!controller.signal.aborted) {
             setSuggestions(results)
             setOpen(true)
@@ -118,6 +124,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           if (!controller.signal.aborted) {
             setError("Failed to fetch suggestions")
             setSuggestions([])
+            setOpen(true)
           }
         } finally {
           if (!controller.signal.aborted) {
@@ -181,7 +188,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             }}
             placeholder={placeholder}
             disabled={disabled}
-            className="border-border bg-background-secondary text-foreground placeholder:text-text-muted focus:border-primary focus:ring-primary w-full rounded-md border py-2 pr-10 pl-10 text-sm shadow-sm transition-colors duration-150 focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-border bg-background-secondary text-foreground placeholder:text-text-muted focus:border-primary focus:ring-primary h-10 w-full rounded-md border py-2 pr-10 pl-10 text-sm shadow-sm transition-colors duration-150 focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
           {loading ? (
