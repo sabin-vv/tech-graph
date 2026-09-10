@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }: DashBoardProps) => {
         <div className="shrink-0">
           <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         </div>
-        <main className="flex-1 overflow-y-auto px-6 py-4">
+        <main className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-4">
           {children}
         </main>
       </div>
