@@ -7,6 +7,10 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         enumsAsConst: true,
+        scalars: {
+          ID: "string",
+          DateTime: "string",
+        },
       },
     },
   },
