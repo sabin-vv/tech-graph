@@ -4,14 +4,20 @@ import KnowledgeMetrics from "@/app/features/knowledge/components/KnowledgeMetri
 import KnowledgeTitle from "@/app/features/knowledge/components/KnowledgeTitle"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 
-const KnowledgeDetailsPage = () => {
+interface KnowledgeDetailsPageProps {
+  params: {
+    id: string
+  }
+}
+const KnowledgeDetailsPage = async ({ params }: KnowledgeDetailsPageProps) => {
+  const { id } = await params
   return (
     <DashboardLayout>
       <KnowledgeTitle />
       <div className="flex gap-4">
         <div className="w-3/4">
           <KnowledgeDescription />
-          <KnowledgeConnection />
+          <KnowledgeConnection knowledgeId={id} />
         </div>
         <div>
           <KnowledgeMetrics />
