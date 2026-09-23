@@ -14,14 +14,6 @@ export type CreateConnectionInput = {
   userId: string
 }
 
-export type CreateKnowledgeInput = {
-  description: string
-  tags: Array<string>
-  title: string
-  type: KnowledgeType
-  userId: string
-}
-
 export type KnowledgeType = "algorithm" | "concept" | "database" | "technology"
 
 export type Relation =
@@ -29,14 +21,6 @@ export type Relation =
 
 export type UpdateConnectionInput = {
   relation?: Relation | null | undefined
-}
-
-export type CreateKnowledgeMutationVariables = Exact<{
-  input: CreateKnowledgeInput
-}>
-
-export type CreateKnowledgeMutation = {
-  createKnowledge: { id: string; title: string }
 }
 
 export type CreateConnectionMutationVariables = Exact<{
@@ -108,61 +92,14 @@ export type GetConnectionsByKnowledgeQuery = {
   }>
 }
 
-export const CreateKnowledgeDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateKnowledge" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateKnowledgeInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createKnowledge" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateKnowledgeMutation,
-  CreateKnowledgeMutationVariables
->
+export type GetKnowledgeForConnectionQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetKnowledgeForConnectionQuery = {
+  knowledge: Array<{ id: string; title: string; type: KnowledgeType }>
+}
+
 export const CreateConnectionDocument = {
   kind: "Document",
   definitions: [
@@ -510,4 +447,34 @@ export const GetConnectionsByKnowledgeDocument = {
 } as unknown as DocumentNode<
   GetConnectionsByKnowledgeQuery,
   GetConnectionsByKnowledgeQueryVariables
+>
+export const GetKnowledgeForConnectionDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetKnowledgeForConnection" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "knowledge" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetKnowledgeForConnectionQuery,
+  GetKnowledgeForConnectionQueryVariables
 >

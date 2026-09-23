@@ -14,20 +14,20 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  mutation CreateKnowledge($input: CreateKnowledgeInput!) {\n    createKnowledge(input: $input) {\n      id\n      title\n    }\n  }\n": typeof types.CreateKnowledgeDocument,
     "\n  mutation CreateConnection($input: CreateConnectionInput!) {\n    createConnection(input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateConnectionDocument,
     "\n  mutation UpdateConnection($id: ID!, $input: UpdateConnectionInput) {\n    updateConnection(id: $id, input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.UpdateConnectionDocument,
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": typeof types.DeleteConnectionDocument,
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsByKnowledgeDocument,
+    "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": typeof types.GetKnowledgeForConnectionDocument,
 };
 const documents: Documents = {
-    "\n  mutation CreateKnowledge($input: CreateKnowledgeInput!) {\n    createKnowledge(input: $input) {\n      id\n      title\n    }\n  }\n": types.CreateKnowledgeDocument,
     "\n  mutation CreateConnection($input: CreateConnectionInput!) {\n    createConnection(input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateConnectionDocument,
     "\n  mutation UpdateConnection($id: ID!, $input: UpdateConnectionInput) {\n    updateConnection(id: $id, input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateConnectionDocument,
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": types.DeleteConnectionDocument,
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsByKnowledgeDocument,
+    "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": types.GetKnowledgeForConnectionDocument,
 };
 
 /**
@@ -44,10 +44,6 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  mutation CreateKnowledge($input: CreateKnowledgeInput!) {\n    createKnowledge(input: $input) {\n      id\n      title\n    }\n  }\n"): (typeof documents)["\n  mutation CreateKnowledge($input: CreateKnowledgeInput!) {\n    createKnowledge(input: $input) {\n      id\n      title\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -68,6 +64,10 @@ export function graphql(source: "\n  query GetConnections {\n    connections {\n
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"): (typeof documents)["\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
