@@ -1,18 +1,25 @@
 "use client"
+import Button from "@/components/ui/Button"
 import { GET_CONNECTIONS_BY_KNOWLEDGE } from "@/graphql/connection/queries"
 import { useQuery } from "@apollo/client/react"
 import { Waypoints } from "lucide-react"
+import { useState } from "react"
+import ConnectionDrawer from "./ConnectionDrawer"
 
 interface KnowledgeConnectionProps {
   knowledgeId: string
 }
 
 const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
-  const { data, loading, error } = useQuery(GET_CONNECTIONS_BY_KNOWLEDGE, {
-    variables: {
-      id: knowledgeId,
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+  const { data, loading, error, refetch } = useQuery(
+    GET_CONNECTIONS_BY_KNOWLEDGE,
+    {
+      variables: {
+        id: knowledgeId,
+      },
     },
-  })
+  )
 
   const formatRelation = (relation: string, isSource: boolean): string => {
     const relationLabel: Record<string, string> = {
@@ -34,7 +41,9 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
           <Waypoints size={20} color="#2698ff" />
           Graph Connection
         </h1>
-        <span>Add connection</span>
+        <Button variant="secondary" onClick={() => setDrawerOpen(true)}>
+          Add connection
+        </Button>
       </div>
 
       {loading && (
@@ -69,6 +78,12 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
           })}
         </ol>
       )}
+      <ConnectionDrawer
+        knowledgeId={knowledgeId}
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+        onSuccess={() => refetch()}
+      />
     </div>
   )
 }
