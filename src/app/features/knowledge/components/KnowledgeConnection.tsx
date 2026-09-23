@@ -1,10 +1,11 @@
 "use client"
 import Button from "@/components/ui/Button"
 import { GET_CONNECTIONS_BY_KNOWLEDGE } from "@/graphql/connection/queries"
-import { useQuery } from "@apollo/client/react"
-import { Waypoints } from "lucide-react"
+import { useMutation, useQuery } from "@apollo/client/react"
+import { Pencil, Trash2, Waypoints } from "lucide-react"
 import { useState } from "react"
 import ConnectionDrawer from "./ConnectionDrawer"
+import { DELETE_CONNECTION } from "@/graphql/connection/mutations"
 
 interface KnowledgeConnectionProps {
   knowledgeId: string
@@ -21,6 +22,9 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
     },
   )
 
+  const [deleteConnection, { loading: deleting }] =
+    useMutation(DELETE_CONNECTION)
+
   const formatRelation = (relation: string, isSource: boolean): string => {
     const relationLabel: Record<string, string> = {
       uses: isSource ? "USES" : "USED BY",
@@ -31,6 +35,27 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
       extends: "EXTENDS",
     }
     return relationLabel[relation]
+  }
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Are you sure want to delete the connection?",
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      await deleteConnection({
+        variables: {
+          id,
+        },
+      })
+      await refetch()
+    } catch (error) {
+      console.error("Failed to delete Connection", error)
+    }
   }
 
   const connections = data?.connectionsByKnowledge ?? []
@@ -70,9 +95,22 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
                 className="border-border flex justify-between border-b-2 py-2 last:border-b-0"
               >
                 <h1 className="text-lg">{connectedKnowledge.title}</h1>
-                <span className="text-text-secondary border-border rounded-md border p-2 text-xs uppercase">
-                  {formatRelation(connection.relation, isSource)}
-                </span>
+                <div className="flex gap-2">
+                  <span className="text-text-secondary border-border rounded-md border p-2 text-xs uppercase">
+                    {formatRelation(connection.relation, isSource)}
+                  </span>
+                  <Button variant="secondary" size="sm">
+                    <Pencil size={14} />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(connection.id)}
+                    disabled={deleting}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
               </li>
             )
           })}
