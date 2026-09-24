@@ -1,18 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { X } from "lucide-react"
 import { useMutation, useQuery } from "@apollo/client/react"
-import { CREATE_CONNECTION } from "@/graphql/connection/mutations"
+import {
+  CREATE_CONNECTION,
+  UPDATE_CONNECTION,
+} from "@/graphql/connection/mutations"
 import type { Relation } from "@/generated/graphql/graphql"
 import { GET_KNOWLEDGE_FOR_CONNECTION } from "@/graphql/knowledge/queries"
 import Select, { SelectOption } from "@/components/ui/Select"
+import Button from "@/components/ui/Button"
 
+interface EditingConnection {
+  id: string
+  relation: Relation
+  connectedTitle: string
+}
 interface ConnectionDrawerProps {
+  source: string
   knowledgeId: string
   open: boolean
   onClose: () => void
   onSuccess: () => void
+  editingConnection?: EditingConnection | null
 }
 
 const relationOptions = [
@@ -27,11 +38,14 @@ const relationOptions = [
 type RelationState = Relation | ""
 
 const ConnectionDrawer = ({
+  source,
   knowledgeId,
   open,
   onClose,
   onSuccess,
+  editingConnection,
 }: ConnectionDrawerProps) => {
+  const isEditing = Boolean(editingConnection)
   const [targetId, setTargetId] = useState("")
   const [relation, setRelation] = useState<RelationState>("")
   const [formError, setFormError] = useState<string | null>(null)
@@ -48,10 +62,65 @@ const ConnectionDrawer = ({
 
   const [createConnection, { loading: creating }] =
     useMutation(CREATE_CONNECTION)
+  const [updateConnection, { loading: updating }] =
+    useMutation(UPDATE_CONNECTION)
+
+  const loading = creating || updating
+
+  const justOpened = useRef(open)
+
+  useEffect(() => {
+    if (!open) {
+      justOpened.current = false
+      return
+    }
+
+    if (!justOpened.current) return
+    justOpened.current = false
+    setFormError(null)
+  }, [open, editingConnection])
+
+  useEffect(() => {
+    justOpened.current = true
+  }, [open])
+
+  const handleClose = () => {
+    if (loading) return
+    onClose()
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
+
+    if (isEditing) {
+      if (!relation) {
+        setFormError("Please select a relation")
+        return
+      }
+
+      try {
+        await updateConnection({
+          variables: {
+            id: editingConnection!.id,
+            input: {
+              relation,
+            },
+          },
+        })
+
+        onSuccess()
+        handleClose()
+      } catch (error) {
+        setFormError(
+          error instanceof Error
+            ? error.message
+            : "Failed to update connection",
+        )
+      }
+
+      return
+    }
 
     if (!targetId) {
       setFormError("Please select a knowledge")
@@ -74,9 +143,6 @@ const ConnectionDrawer = ({
           },
         },
       })
-
-      setTargetId("")
-      setRelation("")
 
       onSuccess()
       onClose()
@@ -149,7 +215,7 @@ const ConnectionDrawer = ({
                   </p>
 
                   <p className="text-sm">
-                    This knowledge
+                    {source}
                     <span className="text-primary mx-2">→</span>
                     {
                       relationOptions.find((item) => item.value === relation)
@@ -173,22 +239,18 @@ const ConnectionDrawer = ({
             </div>
 
             <div className="border-border flex justify-end gap-3 border-t p-5">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={creating}
-                className="border-border rounded-md border px-4 py-2 text-sm"
-              >
+              <Button variant="secondary" onClick={onClose} disabled={loading}>
                 Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={creating}
-                className="bg-primary text-background rounded-md px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {creating ? "Adding..." : "Add Connection"}
-              </button>
+              </Button>
+              <Button type="submit">
+                {loading
+                  ? isEditing
+                    ? "Updating"
+                    : "Adding..."
+                  : isEditing
+                    ? "Update Connection"
+                    : "Add Connection"}
+              </Button>
             </div>
           </form>
         </div>
