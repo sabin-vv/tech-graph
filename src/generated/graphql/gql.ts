@@ -20,6 +20,7 @@ type Documents = {
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsByKnowledgeDocument,
     "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": typeof types.GetKnowledgeForConnectionDocument,
+    "\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": typeof types.GetKnowledgeDocument,
 };
 const documents: Documents = {
     "\n  mutation CreateConnection($input: CreateConnectionInput!) {\n    createConnection(input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateConnectionDocument,
@@ -28,6 +29,7 @@ const documents: Documents = {
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsByKnowledgeDocument,
     "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": types.GetKnowledgeForConnectionDocument,
+    "\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": types.GetKnowledgeDocument,
 };
 
 /**
@@ -68,6 +70,10 @@ export function graphql(source: "\n  query GetConnectionsByKnowledge($id: ID!) {
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"): (typeof documents)["\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"): (typeof documents)["\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

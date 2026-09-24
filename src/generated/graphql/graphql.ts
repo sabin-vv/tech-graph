@@ -100,6 +100,12 @@ export type GetKnowledgeForConnectionQuery = {
   knowledge: Array<{ id: string; title: string; type: KnowledgeType }>
 }
 
+export type GetKnowledgeQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetKnowledgeQuery = {
+  knowledge: Array<{ id: string; title: string; type: KnowledgeType }>
+}
+
 export const CreateConnectionDocument = {
   kind: "Document",
   definitions: [
@@ -478,3 +484,30 @@ export const GetKnowledgeForConnectionDocument = {
   GetKnowledgeForConnectionQuery,
   GetKnowledgeForConnectionQueryVariables
 >
+export const GetKnowledgeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetKnowledge" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "knowledge" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetKnowledgeQuery, GetKnowledgeQueryVariables>
