@@ -1,6 +1,7 @@
 import KnowledgeConnection from "@/app/features/knowledge/components/KnowledgeConnection"
 import KnowledgeDescription from "@/app/features/knowledge/components/KnowledgeDescription"
 import KnowledgeMetrics from "@/app/features/knowledge/components/KnowledgeMetrics"
+import KnowledgeResources from "@/app/features/knowledge/components/KnowledgeResources"
 import KnowledgeTitle from "@/app/features/knowledge/components/KnowledgeTitle"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 
@@ -18,6 +19,7 @@ const KnowledgeDetailsPage = async ({ params }: KnowledgeDetailsPageProps) => {
         <div className="w-3/4">
           <KnowledgeDescription />
           <KnowledgeConnection knowledgeId={id} />
+          <KnowledgeResources knowledgeId={id} />
         </div>
         <div>
           <KnowledgeMetrics />
