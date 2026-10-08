@@ -75,7 +75,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-md text-text-secondary mb-1 block font-medium"
+            className="text-text-secondary mb-1 block text-sm font-medium"
           >
             {label}
           </label>
