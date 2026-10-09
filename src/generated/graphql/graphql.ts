@@ -29,6 +29,12 @@ export type Relation =
 export type ResourceType =
   "article" | "course" | "documentation" | "github" | "other" | "video"
 
+export type SignupInput = {
+  email: string
+  name: string
+  password: string
+}
+
 export type UpdateConnectionInput = {
   relation?: Relation | null | undefined
 }
@@ -47,6 +53,14 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = {
   login: { token: string; user: { id: string; name: string; email: string } }
+}
+
+export type SignupMutationVariables = Exact<{
+  input: SignupInput
+}>
+
+export type SignupMutation = {
+  signup: { token: string; user: { id: string; name: string; email: string } }
 }
 
 export type CreateConnectionMutationVariables = Exact<{
@@ -302,6 +316,69 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const SignupDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "Signup" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "SignupInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "signup" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "token" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "user" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      { kind: "Field", name: { kind: "Name", value: "email" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SignupMutation, SignupMutationVariables>
 export const CreateConnectionDocument = {
   kind: "Document",
   definitions: [

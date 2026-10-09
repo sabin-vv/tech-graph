@@ -12,3 +12,16 @@ export const LOGIN = graphql(`
     }
   }
 `)
+
+export const SIGNUP = graphql(`
+  mutation Signup($input: SignupInput!) {
+    signup(input: $input) {
+      token
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`)
