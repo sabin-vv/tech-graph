@@ -61,8 +61,12 @@ const ResourceDrawerPanel = ({
 
   const [title, setTitle] = useState(editingResource?.title ?? "")
   const [url, setUrl] = useState(editingResource?.url ?? "")
-  const [type, setType] = useState<ResourceTypeState>(editingResource?.type ?? "")
-  const [description, setDescription] = useState(editingResource?.description ?? "")
+  const [type, setType] = useState<ResourceTypeState>(
+    editingResource?.type ?? "",
+  )
+  const [description, setDescription] = useState(
+    editingResource?.description ?? "",
+  )
   const [formError, setFormError] = useState<string | null>(null)
 
   const [createResource, { loading: creating }] = useMutation(CREATE_RESOURCE)
@@ -146,7 +150,6 @@ const ResourceDrawerPanel = ({
       await createResource({
         variables: {
           input: {
-            userId: "4072fc03-fa9b-4e21-97e7-13758437b463",
             knowledgeId,
             title: trimmedTitle,
             url: trimmedUrl,
@@ -264,10 +267,7 @@ const ResourceDrawerPanel = ({
   )
 }
 
-const ResourceDrawer = ({
-  open,
-  ...props
-}: ResourceDrawerProps) => {
+const ResourceDrawer = ({ open, ...props }: ResourceDrawerProps) => {
   if (!open) {
     return null
   }

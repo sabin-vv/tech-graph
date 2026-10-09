@@ -14,6 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.LoginDocument,
     "\n  mutation CreateConnection($input: CreateConnectionInput!) {\n    createConnection(input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateConnectionDocument,
     "\n  mutation UpdateConnection($id: ID!, $input: UpdateConnectionInput) {\n    updateConnection(id: $id, input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.UpdateConnectionDocument,
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": typeof types.DeleteConnectionDocument,
@@ -28,6 +29,7 @@ type Documents = {
     "\n  query GetResourcesByKnowledge($id: ID!) {\n    resourcesByKnowledge(id: $id) {\n      id\n      userId\n      knowledgeId\n      title\n      url\n      type\n      description\n      user {\n        id\n        name\n      }\n      knowledge {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetResourcesByKnowledgeDocument,
 };
 const documents: Documents = {
+    "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.LoginDocument,
     "\n  mutation CreateConnection($input: CreateConnectionInput!) {\n    createConnection(input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateConnectionDocument,
     "\n  mutation UpdateConnection($id: ID!, $input: UpdateConnectionInput) {\n    updateConnection(id: $id, input: $input) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateConnectionDocument,
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": types.DeleteConnectionDocument,
@@ -56,6 +58,10 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

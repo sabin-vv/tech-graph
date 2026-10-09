@@ -99,7 +99,6 @@ const KnowledgeForm = () => {
             description,
             type,
             tags,
-            userId: "default-user",
           },
         },
       })

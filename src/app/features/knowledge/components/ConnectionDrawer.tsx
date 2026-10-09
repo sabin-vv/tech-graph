@@ -136,7 +136,6 @@ const ConnectionDrawer = ({
       await createConnection({
         variables: {
           input: {
-            userId: "default-user",
             sourceId: knowledgeId,
             targetId,
             relation,
