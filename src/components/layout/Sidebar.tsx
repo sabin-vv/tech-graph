@@ -1,12 +1,14 @@
 "use client"
-import Image from "next/image"
 import { LogOut, Plus, Settings } from "lucide-react"
+import { useApolloClient } from "@apollo/client/react"
+import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { removeAuthToken } from "@/lib/auth"
+
 import Button from "../ui/Button"
 import { knowledgeNavigation, mainNavigation } from "./navLinks"
-import { removeAuthToken } from "@/lib/auth"
-import { useApolloClient } from "@apollo/client/react"
 
 const Sidebar = () => {
   const pathname = usePathname()
@@ -14,7 +16,14 @@ const Sidebar = () => {
   const client = useApolloClient()
   const router = useRouter()
 
+  const [loggingOut, setLoggingOut] = useState(false)
+
   const handleLogout = async () => {
+    if (loggingOut) {
+      return
+    }
+
+    setLoggingOut(true)
     removeAuthToken()
 
     try {
@@ -87,7 +96,12 @@ const Sidebar = () => {
         >
           <Settings size={16} /> Settings
         </Link>
-        <Button variant="ghost" onClick={handleLogout}>
+        <Button
+          variant="ghost"
+          loading={loggingOut}
+          onClick={handleLogout}
+          className="text-danger hover:bg-surface-hover w-full justify-start gap-2 rounded-md px-2 py-1.5 text-base hover:cursor-pointer"
+        >
           <LogOut size={16} /> Logout
         </Button>
       </div>
