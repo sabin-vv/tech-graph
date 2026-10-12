@@ -63,6 +63,10 @@ export type SignupMutation = {
   signup: { token: string; user: { id: string; name: string; email: string } }
 }
 
+export type MeQueryVariables = Exact<{ [key: string]: never }>
+
+export type MeQuery = { me: { id: string; name: string; email: string } | null }
+
 export type CreateConnectionMutationVariables = Exact<{
   input: CreateConnectionInput
 }>
@@ -379,6 +383,33 @@ export const SignupDocument = {
     },
   ],
 } as unknown as DocumentNode<SignupMutation, SignupMutationVariables>
+export const MeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ME" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "me" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MeQuery, MeQueryVariables>
 export const CreateConnectionDocument = {
   kind: "Document",
   definitions: [
