@@ -2,12 +2,28 @@
 import Image from "next/image"
 import { LogOut, Plus, Settings } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Button from "../ui/Button"
 import { knowledgeNavigation, mainNavigation } from "./navLinks"
+import { removeAuthToken } from "@/lib/auth"
+import { useApolloClient } from "@apollo/client/react"
 
 const Sidebar = () => {
   const pathname = usePathname()
+
+  const client = useApolloClient()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    removeAuthToken()
+
+    try {
+      await client.clearStore()
+    } finally {
+      router.replace("/login")
+    }
+  }
+
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`)
 
@@ -71,12 +87,9 @@ const Sidebar = () => {
         >
           <Settings size={16} /> Settings
         </Link>
-        <Link
-          href="/logout"
-          className="text-danger! hover:text-foreground hover:bg-surface-hover flex items-center gap-2 rounded-md px-2 py-1 text-base transition-colors"
-        >
+        <Button variant="ghost" onClick={handleLogout}>
           <LogOut size={16} /> Logout
-        </Link>
+        </Button>
       </div>
     </div>
   )
