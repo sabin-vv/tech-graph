@@ -25,3 +25,18 @@ export const SIGNUP = graphql(`
     }
   }
 `)
+
+export const UPDATE_PROFILE = graphql(`
+  mutation UpdateProfile($input: UpdateProfileInput!) {
+    updateProfile(input: $input) {
+      id
+      name
+      email
+      jobTitle
+      location
+      bio
+      skills
+      avatarUrl
+    }
+  }
+`)

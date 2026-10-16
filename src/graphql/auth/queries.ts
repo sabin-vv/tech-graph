@@ -6,6 +6,11 @@ export const ME = graphql(`
       id
       name
       email
+      jobTitle
+      location
+      bio
+      skills
+      avatarUrl
     }
   }
 `)

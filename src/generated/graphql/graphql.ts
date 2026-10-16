@@ -1,3 +1,4 @@
+/* eslint-disable */
 /** Internal type. DO NOT USE DIRECTLY. */
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
 /** Internal type. DO NOT USE DIRECTLY. */
@@ -39,6 +40,15 @@ export type UpdateConnectionInput = {
   relation?: Relation | null | undefined
 }
 
+export type UpdateProfileInput = {
+  bio?: string | null | undefined
+  email?: string | null | undefined
+  jobTitle?: string | null | undefined
+  location?: string | null | undefined
+  name?: string | null | undefined
+  skills?: Array<string> | null | undefined
+}
+
 export type UpdateResourceInput = {
   description?: string | null | undefined
   title?: string | null | undefined
@@ -63,9 +73,37 @@ export type SignupMutation = {
   signup: { token: string; user: { id: string; name: string; email: string } }
 }
 
+export type UpdateProfileMutationVariables = Exact<{
+  input: UpdateProfileInput
+}>
+
+export type UpdateProfileMutation = {
+  updateProfile: {
+    id: string
+    name: string
+    email: string
+    jobTitle: string | null
+    location: string | null
+    bio: string | null
+    skills: Array<string>
+    avatarUrl: string | null
+  }
+}
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>
 
-export type MeQuery = { me: { id: string; name: string; email: string } | null }
+export type MeQuery = {
+  me: {
+    id: string
+    name: string
+    email: string
+    jobTitle: string | null
+    location: string | null
+    bio: string | null
+    skills: Array<string>
+    avatarUrl: string | null
+  } | null
+}
 
 export type CreateConnectionMutationVariables = Exact<{
   input: CreateConnectionInput
@@ -383,6 +421,67 @@ export const SignupDocument = {
     },
   ],
 } as unknown as DocumentNode<SignupMutation, SignupMutationVariables>
+export const UpdateProfileDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateProfile" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateProfileInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateProfile" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "jobTitle" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "bio" } },
+                { kind: "Field", name: { kind: "Name", value: "skills" } },
+                { kind: "Field", name: { kind: "Name", value: "avatarUrl" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateProfileMutation,
+  UpdateProfileMutationVariables
+>
 export const MeDocument = {
   kind: "Document",
   definitions: [
@@ -402,6 +501,11 @@ export const MeDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
                 { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "jobTitle" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "bio" } },
+                { kind: "Field", name: { kind: "Name", value: "skills" } },
+                { kind: "Field", name: { kind: "Name", value: "avatarUrl" } },
               ],
             },
           },
