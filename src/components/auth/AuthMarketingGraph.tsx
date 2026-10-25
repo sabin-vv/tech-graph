@@ -40,7 +40,7 @@ const NODES: TechNode[] = [
 const CORE_ID = "core"
 const PERIPHERAL_IDS = NODES.filter((n) => !n.isCore).map((n) => n.id)
 
-export function TechGraphStage({
+export function AuthMarketingGraph({
   width = 640,
   height = 420,
   className = "",

@@ -10,11 +10,11 @@ import DashboardLayout from "@/components/layout/DashboardLayout"
 import { GET_CONNECTIONS } from "@/graphql/connection/queries"
 import { GET_KNOWLEDGE } from "@/graphql/knowledge/queries"
 
-import GraphToolbar from "../features/graph/components/GraphToolbar"
+import GraphToolbar from "@/components/features/graph/GraphToolbar"
 import KnowledgeGraph, {
   type KnowledgeGraphRef,
-} from "../features/graph/components/KnowledgeGraph"
-import GraphDetailsPanel from "../features/graph/components/GraphDetailsPanel"
+} from "@/components/features/graph/KnowledgeGraph"
+import GraphDetailsPanel from "@/components/features/graph/GraphDetailsPanel"
 
 const GraphPage = () => {
   const router = useRouter()

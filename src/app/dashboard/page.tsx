@@ -1,9 +1,9 @@
-import DashboardLayout from "@/components/layout/DashboardLayout";
-import DashboardHeader from "../features/dashboard/components/DashboardHeader";
-import KnowledgeMetrics from "../features/dashboard/components/KnowledgeMetrics";
-import GraphPreview from "../features/dashboard/components/GraphPreview";
-import RecentActivity from "../features/dashboard/components/RecentActivity";
-import RecentKnowledge from "../features/dashboard/components/RecentKnowledge";
+import DashboardLayout from "@/components/layout/DashboardLayout"
+import DashboardHeader from "@/components/features/dashboard/DashboardHeader"
+import KnowledgeMetrics from "@/components/features/dashboard/KnowledgeMetrics"
+import GraphPreview from "@/components/features/dashboard/GraphPreview"
+import RecentActivity from "@/components/features/dashboard/RecentActivity"
+import RecentKnowledge from "@/components/features/dashboard/RecentKnowledge"
 
 const DashboardPage = () => {
   return (
@@ -20,6 +20,6 @@ const DashboardPage = () => {
       </div>
       <RecentKnowledge />
     </DashboardLayout>
-  );
-};
-export default DashboardPage;
+  )
+}
+export default DashboardPage

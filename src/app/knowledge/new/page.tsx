@@ -1,5 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout"
-import KnowledgeForm from "@/app/features/knowledge/components/KnowledgeForm"
+import KnowledgeForm from "@/components/features/knowledge/KnowledgeForm"
 import PageHeading from "@/components/layout/PageHeading"
 
 const NewKnowledge = () => {

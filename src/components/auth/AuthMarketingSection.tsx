@@ -1,13 +1,17 @@
 "use client"
 
 import Image from "next/image"
-import { TechGraphStage } from "@/components/graph/TechGraphStage"
+import { AuthMarketingGraph } from "@/components/auth/AuthMarketingGraph"
 
 export function AuthMarketingSection() {
   return (
     <div className="mx-auto w-full max-w-160 space-y-6">
       <Image src="/image/brandLogo.png" alt="logo" width={300} height={180} />
-      <TechGraphStage className="mx-auto border-0" width={480} height={320} />
+      <AuthMarketingGraph
+        className="mx-auto border-0"
+        width={480}
+        height={320}
+      />
       <div className="copy relative z-10 mt-6">
         <h1 className="max-w-[16ch] font-[Space_Grotesk] text-[28px] leading-[1.14] font-bold tracking-[-0.015em] sm:text-[34px]">
           See how your stack{" "}

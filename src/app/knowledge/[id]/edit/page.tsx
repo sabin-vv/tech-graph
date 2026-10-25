@@ -1,4 +1,4 @@
-import KnowledgeForm from "@/app/features/knowledge/components/KnowledgeForm"
+import KnowledgeForm from "@/components/features/knowledge/KnowledgeForm"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 
 const Editknowledge = () => {

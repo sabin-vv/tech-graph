@@ -1,8 +1,8 @@
-import KnowledgeConnection from "@/app/features/knowledge/components/KnowledgeConnection"
-import KnowledgeDescription from "@/app/features/knowledge/components/KnowledgeDescription"
-import KnowledgeMetrics from "@/app/features/knowledge/components/KnowledgeMetrics"
-import KnowledgeResources from "@/app/features/knowledge/components/KnowledgeResources"
-import KnowledgeTitle from "@/app/features/knowledge/components/KnowledgeTitle"
+import KnowledgeConnection from "@/components/features/knowledge/KnowledgeConnection"
+import KnowledgeDescription from "@/components/features/knowledge/KnowledgeDescription"
+import KnowledgeMetrics from "@/components/features/knowledge/KnowledgeMetrics"
+import KnowledgeResources from "@/components/features/knowledge/KnowledgeResources"
+import KnowledgeTitle from "@/components/features/knowledge/KnowledgeTitle"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 
 interface KnowledgeDetailsPageProps {

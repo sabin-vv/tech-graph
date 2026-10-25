@@ -1,5 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout"
-import ProfileDetails from "../features/profile/components/ProfileDetails"
+import ProfileDetails from "@/components/features/profile/ProfileDetails"
 
 const ProfilePage = () => {
   return (
