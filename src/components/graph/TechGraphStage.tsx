@@ -105,7 +105,7 @@ export function TechGraphStage({
     <div
       ref={stageRef}
       id="stage"
-      className={`relative w-full overflow-hidden techgraph-stage-bg rounded-[18px] border border-(--violet)/35 ${className}`}
+      className={`relative w-full overflow-hidden rounded-[18px] border border-(--violet)/35 ${className}`}
       style={{ maxWidth: width, aspectRatio: `${width} / ${height}` }}
     >
       <svg
