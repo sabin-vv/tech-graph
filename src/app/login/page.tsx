@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation"
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import SigninWithGithub from "@/components/auth/SigninWithGithub"
+import SigninWithGoogle from "@/components/auth/SigninWithGoogle"
 
 const LoginPage = () => {
   const {
@@ -60,17 +62,16 @@ const LoginPage = () => {
     <GuestOnly>
       <main className="techgraph-stage-bg min-h-screen w-full overflow-y-auto">
         <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 lg:px-10">
-            <AuthMarketingSection />
-            <section className="border-border mx-auto w-full max-w-100 space-y-6 rounded-2xl border p-6 shadow-2xl shadow-black/20 sm:p-8">
+          <AuthMarketingSection />
+          <section className="border-border mx-auto w-full max-w-100 space-y-6 rounded-2xl border p-6 shadow-2xl shadow-black/20 sm:p-8">
             <div className="text-center">
               <h2 className="font-[Space_Grotesk] text-2xl font-semibold">
                 Welcome back
               </h2>
-              <p className="text-text-secondary mt-2 text-sm">
+              <p className="text-text-secondary text-sm">
                 Continue building your knowledge graph
               </p>
             </div>
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {loginError && (
                 <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
@@ -81,6 +82,7 @@ const LoginPage = () => {
                 label="Email"
                 placeholder="you@example.com"
                 autoComplete="email"
+                type="email"
                 {...register("email")}
                 error={errors.email && errors.email.message}
               />
@@ -109,12 +111,33 @@ const LoginPage = () => {
                   </span>
                   Remember me
                 </label>
-                <span className="text-sm text-blue-400">Forgot password?</span>
+                <span className="cursor-pointer text-sm text-blue-400 hover:underline">
+                  Forgot password?
+                </span>
               </div>
               <Button type="submit" className="w-full" loading={loading}>
                 Sign In
               </Button>
             </form>
+
+            <div className="flex items-center gap-2">
+              <span className="border-border w-full border" />
+              <span className="text-text-muted text-sm">OR</span>
+              <span className="border-border w-full border" />
+            </div>
+            <div className="space-y-2">
+              <SigninWithGithub className="w-full" />
+              <SigninWithGoogle className="w-full" />
+            </div>
+            <div className="text-center text-sm">
+              <span>Dont have an Account? </span>{" "}
+              <span
+                className="cursor-pointer text-blue-400 hover:underline"
+                onClick={() => router.push("/signup")}
+              >
+                Create account
+              </span>
+            </div>
           </section>
         </div>
       </main>

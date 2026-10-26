@@ -1,6 +1,9 @@
 "use client"
 
+import { AuthMarketingSection } from "@/components/auth/AuthMarketingSection"
 import GuestOnly from "@/components/auth/GuestOnly"
+import SigninWithGithub from "@/components/auth/SigninWithGithub"
+import SigninWithGoogle from "@/components/auth/SigninWithGoogle"
 import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
 import Password from "@/components/ui/Password"
@@ -53,70 +56,81 @@ const SignupPage = () => {
 
   return (
     <GuestOnly>
-      <div className="grid w-full flex-1 items-center gap-10 px-4 py-10 md:grid-cols-2">
-        <div>Graph</div>
-        <div className="border-border bg-surface m-4 rounded-md border p-4">
-          <h2 className="text-lg font-semibold">Create your Workspace</h2>
-          <span className="text-text-muted text-sm">
-            Start building your personal knowledge graph
-          </span>
-
-          {signupError && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-              {signupError}
+      <main className="techgraph-stage-bg h-dvh w-full overflow-y-auto">
+        <div className="mx-auto grid min-h-full w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 lg:px-10">
+          <AuthMarketingSection />
+          <div className="border-border m-4 space-y-6 rounded-md border p-4 shadow-black/20">
+            <div className="text-center">
+              <h2 className="font-[Space_Grotesk] text-2xl font-semibold">
+                Create your Workspace
+              </h2>
+              <span className="text-text-secondary text-sm">
+                Start building your personal knowledge graph
+              </span>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="my-3 space-y-4">
-            <Input
-              label="Full Name"
-              placeholder="Your name"
-              {...register("name")}
-              error={errors.name && errors.name.message}
-            />
-            <Input
-              label="Email"
-              placeholder="example@email.com"
-              type="email"
-              {...register("email")}
-              error={errors.email && errors.email.message}
-            />
-            <Password
-              label="Password"
-              placeholder="Create a password"
-              {...register("password")}
-              error={errors.password && errors.password.message}
-            />
-            <Password
-              label="Confirm Password"
-              placeholder="Confirm your passsword"
-              {...register("confirmPassword")}
-              error={errors.confirmPassword && errors.confirmPassword.message}
-            />
+            {signupError && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+                {signupError}
+              </div>
+            )}
 
-            <Button className="w-full" type="submit" loading={loading}>
-              Create Account
-              <ArrowRight size={16} />
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <Input
+                label="Full Name"
+                placeholder="Your name"
+                {...register("name")}
+                error={errors.name && errors.name.message}
+              />
+              <Input
+                label="Email"
+                placeholder="example@email.com"
+                type="email"
+                {...register("email")}
+                error={errors.email && errors.email.message}
+              />
+              <Password
+                label="Password"
+                placeholder="Create a password"
+                {...register("password")}
+                error={errors.password && errors.password.message}
+              />
+              <Password
+                label="Confirm Password"
+                placeholder="Confirm your passsword"
+                {...register("confirmPassword")}
+                error={errors.confirmPassword && errors.confirmPassword.message}
+              />
 
-          <span className="flex justify-center p-3 text-sm">OR</span>
+              <Button className="w-full" type="submit" loading={loading}>
+                Create Account
+                <ArrowRight size={16} />
+              </Button>
+            </form>
 
-          <Button className="w-full gap-2" variant="outline">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              className="bi bi-github"
-              viewBox="0 0 16 16"
-            >
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
-            </svg>
-            Continue with Google
-          </Button>
+            <div className="flex items-center gap-2">
+              <span className="border-border w-full border" />
+              <span className="text-text-muted text-sm">OR</span>
+              <span className="border-border w-full border" />
+            </div>
+
+            <div className="space-y-2">
+              <SigninWithGithub className="w-full" />
+              <SigninWithGoogle className="w-full" />
+            </div>
+
+            <div className="text-center text-sm">
+              <span>Already have an account? </span>
+              <span
+                className="cursor-pointer text-blue-400"
+                onClick={() => router.replace("/login")}
+              >
+                Sign in
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </GuestOnly>
   )
 }
