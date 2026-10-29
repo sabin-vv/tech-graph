@@ -14,7 +14,7 @@ import {
 import "@xyflow/react/dist/style.css"
 import { useEffect, useMemo, useState } from "react"
 
-const HORIZONTAL_GAP = 245
+const HORIZONTAL_GAP = 400
 const VERTICAL_GAP = 90
 
 const hiddenHandleStyle = `
@@ -297,7 +297,7 @@ function GraphPreviewCanvas() {
         zoomOnPinch={false}
         proOptions={{ hideAttribution: true }}
       >
-        <Background gap={24} size={1} color="var(--surface)" />
+        <Background />
       </ReactFlow>
       <div className="absolute right-3 bottom-3 z-10 flex flex-col gap-1">
         <button
