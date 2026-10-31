@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@apollo/client/react"
 import Link from "next/link"
 import {
   Background,
@@ -14,8 +15,15 @@ import {
 import "@xyflow/react/dist/style.css"
 import { useEffect, useMemo, useState } from "react"
 
-const HORIZONTAL_GAP = 400
-const VERTICAL_GAP = 90
+import SectionHeader from "@/components/layout/SectionHeader"
+import type {
+  GetConnectionsQuery,
+  GetKnowledgeQuery,
+} from "@/generated/graphql/graphql"
+import { MoveRight } from "lucide-react"
+
+import { GET_CONNECTIONS } from "@/graphql/connection/queries"
+import { GET_KNOWLEDGE } from "@/graphql/knowledge/queries"
 
 const hiddenHandleStyle = `
   .react-flow__node .react-flow__handle {
@@ -24,12 +32,13 @@ const hiddenHandleStyle = `
   }
 `
 
-function createNode(id: string, label: string, primary = false): Node {
+type PreviewNode = Omit<Node, "position" | "sourcePosition" | "targetPosition">
+type KnowledgeItem = GetKnowledgeQuery["knowledge"][number]
+type ConnectionItem = GetConnectionsQuery["connections"][number]
+
+function createNode(id: string, label: string, primary = false): PreviewNode {
   return {
     id,
-    position: { x: 0, y: 0 },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
     data: { label },
     style: primary
       ? {
@@ -54,78 +63,50 @@ function createNode(id: string, label: string, primary = false): Node {
   }
 }
 
-const nodeDefinitions = [
-  { id: "nodejs", label: "Node.js", primary: true },
-  { id: "javascript", label: "JavaScript" },
-  { id: "express", label: "Express" },
-  { id: "event-loop", label: "Event Loop" },
-  { id: "exec", label: "Exec" },
-  { id: "threadpool", label: "Thread Pool" },
-  { id: "v8", label: "V8" },
-  { id: "router", label: "Router" },
-  { id: "middleware", label: "Middleware" },
-  { id: "timers", label: "Timers" },
-  { id: "poll", label: "Poll" },
-  { id: "check", label: "Check" },
-  { id: "child-process", label: "Child Process" },
-  { id: "filesystem", label: "File System" },
-  { id: "crypto", label: "Crypto" },
-] as const
+function buildPreviewGraph(
+  knowledge: KnowledgeItem[],
+  connections: ConnectionItem[],
+  selectedId: string | null,
+) {
+  const nodeIds = new Set(knowledge.map((item) => item.id))
+  const incoming = new Map<string, string[]>()
+  const outgoing = new Map<string, string[]>()
 
-type NodeId = (typeof nodeDefinitions)[number]["id"]
+  for (const item of knowledge) {
+    incoming.set(item.id, [])
+    outgoing.set(item.id, [])
+  }
 
-type ConnectionDefinition = {
-  id: string
-  source: NodeId
-  target: NodeId
-}
+  const allEdges: Edge[] = connections
+    .filter(
+      (connection) =>
+        nodeIds.has(connection.source.id) && nodeIds.has(connection.target.id),
+    )
+    .map((connection) => {
+      outgoing.get(connection.source.id)?.push(connection.target.id)
+      incoming.get(connection.target.id)?.push(connection.source.id)
 
-const allNodes: Node[] = nodeDefinitions.map((node) =>
-  createNode(node.id, node.label, "primary" in node ? node.primary : false),
-)
+      return {
+        id: connection.id,
+        source: connection.source.id,
+        target: connection.target.id,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "var(--primary)",
+        },
+        style: {
+          stroke: "var(--primary)",
+          strokeWidth: 1.5,
+        },
+      }
+    })
 
-const connectionDefinitions: ConnectionDefinition[] = [
-  { id: "nodejs-javascript", source: "nodejs", target: "javascript" },
-  { id: "nodejs-express", source: "nodejs", target: "express" },
-  { id: "nodejs-event-loop", source: "nodejs", target: "event-loop" },
-  { id: "nodejs-exec", source: "nodejs", target: "exec" },
-  { id: "nodejs-threadpool", source: "nodejs", target: "threadpool" },
-
-  { id: "javascript-v8", source: "javascript", target: "v8" },
-  { id: "express-router", source: "express", target: "router" },
-  { id: "express-middleware", source: "express", target: "middleware" },
-
-  { id: "event-loop-timers", source: "event-loop", target: "timers" },
-  { id: "event-loop-poll", source: "event-loop", target: "poll" },
-  { id: "event-loop-check", source: "event-loop", target: "check" },
-
-  { id: "exec-child-process", source: "exec", target: "child-process" },
-  { id: "threadpool-filesystem", source: "threadpool", target: "filesystem" },
-  { id: "threadpool-crypto", source: "threadpool", target: "crypto" },
-]
-
-const allEdges: Edge[] = connectionDefinitions.map(
-  ({ id, source, target }) => ({
-    id,
-    source,
-    target,
-    type: "default",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      color: "var(--primary)",
-    },
-    style: {
-      stroke: "var(--primary)",
-      strokeWidth: 1.5,
-    },
-  }),
-)
-
-const nodeById = new Map(allNodes.map((node) => [node.id, node]))
-
-function buildFullGraph(selectedId: string | null) {
-  const visibleIds = new Set<string>()
+  const roots = knowledge
+    .filter((item) => incoming.get(item.id)?.length === 0)
+    .map((item) => item.id)
+  const rootId = roots[0] ?? knowledge[0]?.id ?? null
   const positions = new Map<string, { x: number; y: number }>()
+  const visited = new Set<string>()
   let nextY = 0
 
   function layoutNode(
@@ -133,28 +114,21 @@ function buildFullGraph(selectedId: string | null) {
     depth: number,
     ancestors: Set<string>,
   ): number {
-    if (!nodeById.has(id) || ancestors.has(id)) {
+    if (!nodeIds.has(id) || ancestors.has(id)) {
       return nextY
     }
 
-    if (visibleIds.has(id)) {
+    if (visited.has(id)) {
       return positions.get(id)?.y ?? nextY
     }
 
-    visibleIds.add(id)
-
+    visited.add(id)
     const nextAncestors = new Set(ancestors)
     nextAncestors.add(id)
-
-    const childIds = allEdges
-      .filter((edge) => edge.source === id)
-      .map((edge) => edge.target)
-      .filter((targetId) => !nextAncestors.has(targetId))
-
     const childYs: number[] = []
 
-    for (const childId of childIds) {
-      if (!visibleIds.has(childId)) {
+    for (const childId of outgoing.get(id) ?? []) {
+      if (!visited.has(childId)) {
         childYs.push(layoutNode(childId, depth + 1, nextAncestors))
       }
     }
@@ -165,67 +139,60 @@ function buildFullGraph(selectedId: string | null) {
         : nextY
 
     if (childYs.length === 0) {
-      nextY += VERTICAL_GAP
+      nextY += 90
     }
 
-    positions.set(id, {
-      x: depth * HORIZONTAL_GAP,
-      y,
-    })
-
+    positions.set(id, { x: depth * 400, y })
     return y
   }
 
-  layoutNode("nodejs", 0, new Set())
+  for (const root of roots.length > 0
+    ? roots
+    : knowledge.slice(0, 1).map((item) => item.id)) {
+    layoutNode(root, 0, new Set())
+  }
 
-  for (const node of allNodes) {
-    if (!visibleIds.has(node.id)) {
-      layoutNode(node.id, 0, new Set())
+  for (const item of knowledge) {
+    if (!visited.has(item.id)) {
+      layoutNode(item.id, 0, new Set())
     }
   }
 
   const connectedIds = new Set<string>()
-
-  if (selectedId) {
+  if (selectedId && nodeIds.has(selectedId)) {
     connectedIds.add(selectedId)
+    for (const id of outgoing.get(selectedId) ?? []) connectedIds.add(id)
+    for (const id of incoming.get(selectedId) ?? []) connectedIds.add(id)
 
-    allEdges
-      .filter(
-        (edge) => edge.source === selectedId || edge.target === selectedId,
-      )
-      .forEach((edge) => {
-        connectedIds.add(edge.source)
-        connectedIds.add(edge.target)
-      })
-
-    const ancestorVisited = new Set<string>([selectedId])
-    const ancestorStack = [selectedId]
+    const ancestorStack = [...(incoming.get(selectedId) ?? [])]
+    const ancestorVisited = new Set(ancestorStack)
     while (ancestorStack.length > 0) {
       const currentId = ancestorStack.pop()!
-      const incomingEdges = allEdges.filter(
-        (edge) =>
-          edge.target === currentId && !ancestorVisited.has(edge.source),
-      )
-      for (const edge of incomingEdges) {
-        ancestorVisited.add(edge.source)
-        connectedIds.add(edge.source)
-        ancestorStack.push(edge.source)
+      connectedIds.add(currentId)
+      for (const parentId of incoming.get(currentId) ?? []) {
+        if (!ancestorVisited.has(parentId)) {
+          ancestorVisited.add(parentId)
+          ancestorStack.push(parentId)
+        }
       }
     }
   }
 
-  const nodes = allNodes.map((node) => ({
-    ...node,
-    position: positions.get(node.id) ?? { x: 0, y: 0 },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-    style: {
-      ...node.style,
-      boxShadow:
-        node.id === selectedId ? "0 0 0 2px var(--primary)" : undefined,
-      opacity: selectedId && !connectedIds.has(node.id) ? 0.55 : 1,
-    },
-  }))
+  const nodes = knowledge.map((item) => {
+    const node = createNode(item.id, item.title, item.id === rootId)
+    return {
+      ...node,
+      position: positions.get(item.id) ?? { x: 0, y: 0 },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      style: {
+        ...node.style,
+        boxShadow:
+          item.id === selectedId ? "0 0 0 2px var(--primary)" : undefined,
+        opacity: selectedId && !connectedIds.has(item.id) ? 0.55 : 1,
+      },
+    }
+  })
 
   const edges = allEdges.map((edge) => {
     const isConnected =
@@ -255,14 +222,18 @@ function buildFullGraph(selectedId: string | null) {
   return { nodes, edges }
 }
 
-function GraphPreviewCanvas() {
+function GraphPreviewCanvas({
+  knowledge,
+  connections,
+}: {
+  knowledge: KnowledgeItem[]
+  connections: ConnectionItem[]
+}) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
-
   const { fitView, zoomIn, zoomOut } = useReactFlow()
-
   const { nodes, edges } = useMemo(
-    () => buildFullGraph(selectedId),
-    [selectedId],
+    () => buildPreviewGraph(knowledge, connections, selectedId),
+    [connections, knowledge, selectedId],
   )
 
   function handleNodeClick(_event: React.MouseEvent, node: Node) {
@@ -271,14 +242,11 @@ function GraphPreviewCanvas() {
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      void fitView({
-        padding: 0.2,
-        duration: 250,
-      })
+      void fitView({ padding: 0.2, duration: 250 })
     }, 30)
 
     return () => window.clearTimeout(timeout)
-  }, [nodes, fitView])
+  }, [fitView, nodes])
 
   return (
     <div className="bg-background relative h-105 w-full">
@@ -286,12 +254,10 @@ function GraphPreviewCanvas() {
         nodes={nodes}
         edges={edges}
         onNodeClick={handleNodeClick}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
-        zoomOnScroll={true}
+        zoomOnScroll
         panOnScroll={false}
         panOnDrag={false}
         zoomOnPinch={false}
@@ -299,6 +265,7 @@ function GraphPreviewCanvas() {
       >
         <Background />
       </ReactFlow>
+
       <div className="absolute right-3 bottom-3 z-10 flex flex-col gap-1">
         <button
           type="button"
@@ -309,7 +276,6 @@ function GraphPreviewCanvas() {
         >
           +
         </button>
-
         <button
           type="button"
           onClick={() => void zoomOut({ duration: 200 })}
@@ -319,15 +285,9 @@ function GraphPreviewCanvas() {
         >
           −
         </button>
-
         <button
           type="button"
-          onClick={() =>
-            void fitView({
-              padding: 0.2,
-              duration: 250,
-            })
-          }
+          onClick={() => void fitView({ padding: 0.2, duration: 250 })}
           aria-label="Fit graph to preview"
           title="Fit graph"
           className="border-border bg-surface text-foreground hover:bg-background flex h-8 items-center justify-center rounded-md border px-2 text-xs shadow-sm transition"
@@ -340,34 +300,65 @@ function GraphPreviewCanvas() {
 }
 
 export default function GraphPreview() {
+  const {
+    data: knowledgeData,
+    loading: knowledgeLoading,
+    error: knowledgeError,
+  } = useQuery(GET_KNOWLEDGE, { fetchPolicy: "cache-and-network" })
+  const {
+    data: connectionData,
+    loading: connectionLoading,
+    error: connectionError,
+  } = useQuery(GET_CONNECTIONS, { fetchPolicy: "cache-and-network" })
+
+  const knowledge = knowledgeData?.knowledge ?? []
+  const connections = connectionData?.connections ?? []
+  const loading = knowledgeLoading || connectionLoading
+  const error = knowledgeError || connectionError
+
   return (
-    <>
+    <section className="border-border bg-surface overflow-hidden rounded-xl border">
       <style>{hiddenHandleStyle}</style>
-
-      <section className="border-border bg-surface mt-7 overflow-hidden rounded-xl border">
-        <div className="border-border flex items-center justify-between border-b px-5 py-4">
-          <div>
-            <h2 className="text-foreground text-sm font-semibold">
-              Knowledge Graph
-            </h2>
-
-            <p className="text-text-secondary mt-1 text-xs">
-              Click a node to expand its connections
-            </p>
-          </div>
-
+      <SectionHeader
+        title="Knowledge Graph"
+        description="Click a node to view its connections"
+        action={
           <Link
             href="/graph"
-            className="text-primary hover:text-primary-hover text-xs font-medium transition-colors"
+            className="border-border text-primary hover:bg-surface-hover inline-flex h-10 items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors"
           >
-            Open Graph View →
+            Open Graph View <MoveRight size={16} />
           </Link>
-        </div>
+        }
+      />
 
+      {loading && (
+        <div className="bg-background flex h-105 items-center justify-center">
+          <p className="text-text-secondary text-sm">
+            Loading graph preview...
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-background flex h-105 items-center justify-center">
+          <p className="text-danger text-sm">Failed to load graph preview.</p>
+        </div>
+      )}
+
+      {!loading && !error && knowledge.length === 0 && (
+        <div className="bg-background flex h-105 items-center justify-center">
+          <p className="text-text-secondary text-sm">
+            Add knowledge to build your graph.
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && knowledge.length > 0 && (
         <ReactFlowProvider>
-          <GraphPreviewCanvas />
+          <GraphPreviewCanvas knowledge={knowledge} connections={connections} />
         </ReactFlowProvider>
-      </section>
-    </>
+      )}
+    </section>
   )
 }
