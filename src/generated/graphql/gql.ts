@@ -23,6 +23,7 @@ type Documents = {
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": typeof types.DeleteConnectionDocument,
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetConnectionsByKnowledgeDocument,
+    "\n  query GetGraphKnowledge {\n    knowledge {\n      id\n      title\n      description\n      type\n      tags\n    }\n  }\n": typeof types.GetGraphKnowledgeDocument,
     "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": typeof types.GetKnowledgeForConnectionDocument,
     "\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n      tags\n    }\n  }\n": typeof types.GetKnowledgeDocument,
     "\n  mutation CreateResource($input: CreateResourceInput!) {\n    createResource(input: $input) {\n      id\n      userId\n      knowledgeId\n      title\n      type\n      url\n      description\n      user {\n        id\n        name\n      }\n      knowledge {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateResourceDocument,
@@ -41,6 +42,7 @@ const documents: Documents = {
     "\n  mutation DeleteConnection($id: ID!) {\n    deleteConnection(id: $id)\n  }\n": types.DeleteConnectionDocument,
     "\n  query GetConnections {\n    connections {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsDocument,
     "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetConnectionsByKnowledgeDocument,
+    "\n  query GetGraphKnowledge {\n    knowledge {\n      id\n      title\n      description\n      type\n      tags\n    }\n  }\n": types.GetGraphKnowledgeDocument,
     "\n  query GetKnowledgeForConnection {\n    knowledge {\n      id\n      title\n      type\n    }\n  }\n": types.GetKnowledgeForConnectionDocument,
     "\n  query GetKnowledge {\n    knowledge {\n      id\n      title\n      type\n      tags\n    }\n  }\n": types.GetKnowledgeDocument,
     "\n  mutation CreateResource($input: CreateResourceInput!) {\n    createResource(input: $input) {\n      id\n      userId\n      knowledgeId\n      title\n      type\n      url\n      description\n      user {\n        id\n        name\n      }\n      knowledge {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateResourceDocument,
@@ -100,6 +102,10 @@ export function graphql(source: "\n  query GetConnections {\n    connections {\n
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetConnectionsByKnowledge($id: ID!) {\n    connectionsByKnowledge(id: $id) {\n      id\n      userId\n      relation\n      source {\n        id\n        title\n        type\n      }\n      target {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetGraphKnowledge {\n    knowledge {\n      id\n      title\n      description\n      type\n      tags\n    }\n  }\n"): (typeof documents)["\n  query GetGraphKnowledge {\n    knowledge {\n      id\n      title\n      description\n      type\n      tags\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
