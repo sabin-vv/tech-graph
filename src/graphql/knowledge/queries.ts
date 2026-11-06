@@ -44,6 +44,8 @@ export const GET_KNOWLEDGE_BY_ID = graphql(`
       type
       description
       tags
+      createdAt
+      updatedAt
     }
   }
 `)
