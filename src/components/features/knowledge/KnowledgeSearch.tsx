@@ -1,20 +1,52 @@
-"use Client";
+"use client"
 
-import { ListSortDescending } from "lucide-react";
+import { ArrowDownWideNarrow } from "lucide-react"
+import Input from "@/components/ui/Input"
+import Select, { type SelectOption } from "@/components/ui/Select"
 
-const KnowledgeSearch = () => {
+export type KnowledgeSort = "updated" | "title-asc" | "title-desc"
+
+interface KnowledgeSearchProps {
+  search: string
+  onSearchChange: (value: string) => void
+  sort: KnowledgeSort
+  onSortChange: (value: KnowledgeSort) => void
+}
+
+const sortOptions: SelectOption[] = [
+  { label: "Recently updated", value: "updated" },
+  { label: "Title: A to Z", value: "title-asc" },
+  { label: "Title: Z to A", value: "title-desc" },
+]
+
+const KnowledgeSearch = ({
+  search,
+  onSearchChange,
+  sort,
+  onSortChange,
+}: KnowledgeSearchProps) => {
   return (
-    <div className="mt-7 flex gap-5">
-      <input
-        className="border-border w-4/5 rounded-md border px-4 py-2"
-        type="text"
-        placeholder="Search technologies, concepts, libraries..."
-      />
-      <div className="border-border flex items-center gap-2 rounded-lg border px-4 py-2">
-        <ListSortDescending size={18} />
-        <span className="block text-sm">Recently updated</span>
+    <div className="flex flex-col items-end gap-3 sm:flex-row">
+      <div className="w-full flex-1">
+        <Input
+          label="Search knowledge"
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Search technologies, concepts..."
+          className="bg-background-secondary text-foreground placeholder:text-text-muted"
+        />
+      </div>
+      <div className="w-full sm:w-56">
+        <Select
+          label="Sort by"
+          options={sortOptions}
+          value={sort}
+          onChange={(value) => onSortChange(value as KnowledgeSort)}
+          leftIcon={<ArrowDownWideNarrow size={16} aria-hidden="true" />}
+        />
       </div>
     </div>
-  );
-};
-export default KnowledgeSearch;
+  )
+}
+export default KnowledgeSearch

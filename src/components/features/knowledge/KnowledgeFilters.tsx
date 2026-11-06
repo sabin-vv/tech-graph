@@ -1,18 +1,58 @@
-import { ChevronDown } from "lucide-react";
+"use client"
 
-const Knowledgefilters = () => {
+import Select, { type SelectOption } from "@/components/ui/Select"
+import type { KnowledgeType } from "@/generated/graphql/graphql"
+
+export type KnowledgeTypeFilter = "all" | KnowledgeType
+
+interface KnowledgeFiltersProps {
+  type: KnowledgeTypeFilter
+  tag: string
+  tags: string[]
+  onTypeChange: (type: KnowledgeTypeFilter) => void
+  onTagChange: (tag: string) => void
+}
+
+const typeOptions: SelectOption[] = [
+  { label: "All types", value: "all" },
+  { label: "Technology", value: "technology" },
+  { label: "Concept", value: "concept" },
+  { label: "Algorithm", value: "algorithm" },
+  { label: "Database", value: "database" },
+]
+
+const KnowledgeFilters = ({
+  type,
+  tag,
+  tags,
+  onTypeChange,
+  onTagChange,
+}: KnowledgeFiltersProps) => {
+  const tagOptions: SelectOption[] = [
+    { label: "All tags", value: "" },
+    ...tags.map((value) => ({ label: value, value })),
+  ]
+
   return (
-    <div className="mt-7 flex gap-2">
-      <span className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-        Type <ChevronDown size={16} />
-      </span>
-      <span className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-        Tag <ChevronDown size={16} />
-      </span>
-      <span className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-        Tachnology <ChevronDown size={16} />
-      </span>
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="w-full sm:w-48">
+        <Select
+          label="Type"
+          options={typeOptions}
+          value={type}
+          onChange={(value) => onTypeChange(value as KnowledgeTypeFilter)}
+        />
+      </div>
+      <div className="w-full sm:w-56">
+        <Select
+          label="Tag"
+          options={tagOptions}
+          value={tag}
+          onChange={onTagChange}
+        />
+      </div>
     </div>
-  );
-};
-export default Knowledgefilters;
+  )
+}
+
+export default KnowledgeFilters
