@@ -2,9 +2,22 @@ import { CalendarDays, Info, RotateCcwClock } from "lucide-react"
 
 interface KnowledgrDescriptionProps {
   description: string
+  createdAt: string
+  updatedAt: string
 }
 
-const KnowledgeDescription = ({ description }: KnowledgrDescriptionProps) => {
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value))
+
+const KnowledgeDescription = ({
+  description,
+  createdAt,
+  updatedAt,
+}: KnowledgrDescriptionProps) => {
   return (
     <div className="border-border rounded-lg border">
       <h1 className="flex items-center gap-2 p-4 text-xl">
@@ -18,10 +31,10 @@ const KnowledgeDescription = ({ description }: KnowledgrDescriptionProps) => {
       </div>
       <div className="text-text-muted mt-2 flex gap-6 p-4 text-sm">
         <span className="flex items-center gap-1">
-          <CalendarDays size={16} /> 12 Oct 2025
+          <CalendarDays size={16} /> Created {formatDate(createdAt)}
         </span>
         <span className="flex items-center gap-1">
-          <RotateCcwClock size={16} /> 2 hours Ago
+          <RotateCcwClock size={16} /> Updated {formatDate(updatedAt)}
         </span>
       </div>
     </div>

@@ -45,14 +45,22 @@ const KnowledgeDetailsPage = () => {
   return (
     <DashboardLayout>
       <KnowledgeTitle title={knowledge.title} tags={knowledge.tags} />
-      <div className="flex gap-6">
-        <div className="w-3/4 space-y-6">
-          <KnowledgeDescription description={knowledge.description} />
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(260px,1fr)]">
+        <div className="min-w-0 space-y-6">
+          <KnowledgeDescription
+            description={knowledge.description}
+            createdAt={knowledge.createdAt}
+            updatedAt={knowledge.updatedAt}
+          />
           <KnowledgeConnection knowledgeId={id} />
           <KnowledgeResources knowledgeId={id} />
         </div>
-        <div className="w-1/4">
-          <KnowledgeMetrics />
+        <div className="min-w-0 xl:sticky xl:top-6">
+          <KnowledgeMetrics
+            knowledgeId={id}
+            tags={knowledge.tags}
+            updatedAt={knowledge.updatedAt}
+          />
         </div>
       </div>
     </DashboardLayout>
