@@ -8,7 +8,7 @@ import { useState } from "react"
 import ConnectionDrawer from "./ConnectionDrawer"
 import { DELETE_CONNECTION } from "@/graphql/connection/mutations"
 import { GET_KNOWLEDGE_FOR_CONNECTION } from "@/graphql/knowledge/queries"
-import { Relation } from "@/generated/graphql/graphql"
+import type { Relation } from "@/generated/graphql/graphql"
 
 interface KnowledgeConnectionProps {
   knowledgeId: string
@@ -17,7 +17,8 @@ interface KnowledgeConnectionProps {
 interface EditingConnection {
   id: string
   relation: Relation
-  connectedTitle: string
+  sourceTitle: string
+  targetTitle: string
 }
 
 const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
@@ -40,16 +41,26 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
   const [deleteConnection, { loading: deleting }] =
     useMutation(DELETE_CONNECTION)
 
-  const formatRelation = (relation: string, isSource: boolean): string => {
-    const relationLabel: Record<string, string> = {
-      uses: isSource ? "USES" : "USED BY",
-      related_to: "RELATED TO",
-      part_of: "PART OF",
-      depends_on: "DEPENDS ON",
-      built_with: "BUILT WITH",
-      extends: "EXTENDS",
+  const formatRelation = (relation: Relation, isSource: boolean): string => {
+    const relationLabels: Record<Relation, [string, string]> = {
+      uses: ["USES", "USED BY"],
+      related_to: ["RELATED TO", "RELATED TO"],
+      part_of: ["PART OF", "CONTAINS"],
+      depends_on: ["DEPENDS ON", "REQUIRED BY"],
+      built_with: ["BUILT WITH", "USED TO BUILD"],
+      extends: ["EXTENDS", "EXTENDED BY"],
     }
-    return relationLabel[relation]
+    return relationLabels[relation][isSource ? 0 : 1]
+  }
+
+  const handleAddConnection = () => {
+    setEditingConnection(null)
+    setDrawerOpen(true)
+  }
+
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false)
+    setEditingConnection(null)
   }
 
   const handleEditConnection = (connection: EditingConnection) => {
@@ -80,13 +91,13 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
 
   const connections = data?.connectionsByKnowledge ?? []
   return (
-    <div className="border-border mt-7 mb-1 rounded-lg border">
+    <div className="border-border mb-1 rounded-lg border">
       <div className="flex justify-between p-4">
         <h1 className="flex items-center gap-2 text-xl">
           <Waypoints size={20} color="#2698ff" />
           Graph Connection
         </h1>
-        <Button variant="secondary" onClick={() => setDrawerOpen(true)}>
+        <Button variant="secondary" onClick={handleAddConnection}>
           Add connection
         </Button>
       </div>
@@ -105,10 +116,10 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
       {!loading && !error && connections.length > 0 && (
         <ol className="bg-surface px-4">
           {connections.map((connection) => {
-            const isSource = connection.id === knowledgeId
+            const isSource = connection.source.id === knowledgeId
             const connectedKnowledge = isSource
-              ? connection.source
-              : connection.target
+              ? connection.target
+              : connection.source
             return (
               <li
                 key={connection.id}
@@ -126,7 +137,8 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
                       handleEditConnection({
                         id: connection.id,
                         relation: connection.relation,
-                        connectedTitle: connectedKnowledge.title,
+                        sourceTitle: connection.source.title,
+                        targetTitle: connection.target.title,
                       })
                     }
                   >
@@ -147,9 +159,10 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
         </ol>
       )}
       <ConnectionDrawer
+        key={`${drawerOpen}-${editingConnection?.id ?? "new"}`}
         source={source}
         knowledgeId={knowledgeId}
-        onClose={() => setDrawerOpen(false)}
+        onClose={handleCloseDrawer}
         open={drawerOpen}
         onSuccess={() => refetch()}
         editingConnection={editingConnection}

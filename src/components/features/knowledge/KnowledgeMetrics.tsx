@@ -1,6 +1,6 @@
 const KnowledgeMetrics = () => {
   return (
-    <div className="border-border mt-7 rounded-lg border p-4">
+    <div className="border-border rounded-lg border p-4">
       <h1 className="text-text-secondary border-border w-full border-b-2 py-2">
         KNOWLEDGE METRICS
       </h1>

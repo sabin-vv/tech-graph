@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useState } from "react"
 import { X } from "lucide-react"
 import { useMutation, useQuery } from "@apollo/client/react"
 import {
@@ -15,7 +15,8 @@ import Button from "@/components/ui/Button"
 interface EditingConnection {
   id: string
   relation: Relation
-  connectedTitle: string
+  sourceTitle: string
+  targetTitle: string
 }
 interface ConnectionDrawerProps {
   source: string
@@ -47,7 +48,9 @@ const ConnectionDrawer = ({
 }: ConnectionDrawerProps) => {
   const isEditing = Boolean(editingConnection)
   const [targetId, setTargetId] = useState("")
-  const [relation, setRelation] = useState<RelationState>("")
+  const [relation, setRelation] = useState<RelationState>(
+    editingConnection?.relation ?? "",
+  )
   const [formError, setFormError] = useState<string | null>(null)
   const handleRelationChange = (value: string) => {
     setRelation(value as RelationState)
@@ -66,23 +69,6 @@ const ConnectionDrawer = ({
     useMutation(UPDATE_CONNECTION)
 
   const loading = creating || updating
-
-  const justOpened = useRef(open)
-
-  useEffect(() => {
-    if (!open) {
-      justOpened.current = false
-      return
-    }
-
-    if (!justOpened.current) return
-    justOpened.current = false
-    setFormError(null)
-  }, [open, editingConnection])
-
-  useEffect(() => {
-    justOpened.current = true
-  }, [open])
 
   const handleClose = () => {
     if (loading) return
@@ -171,7 +157,9 @@ const ConnectionDrawer = ({
         <div className="flex h-full flex-col">
           <div className="border-border flex items-center justify-between border-b p-5">
             <div>
-              <h2 className="text-xl font-semibold">Add Connection</h2>
+              <h2 className="text-xl font-semibold">
+                {isEditing ? "Edit Connection" : "Add Connection"}
+              </h2>
 
               <p className="text-text-secondary mt-1 text-sm">
                 Connect this knowledge to another node.
@@ -190,16 +178,20 @@ const ConnectionDrawer = ({
 
           <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
             <div className="flex-1 space-y-5 p-5">
-              <Select
-                label="Knowledge"
-                options={knowledgeOptions}
-                placeholder={
-                  knowledgeLoading ? "Loading knowledge..." : "Select knowledge"
-                }
-                value={targetId}
-                onChange={setTargetId}
-                disabled={knowledgeLoading}
-              />
+              {!isEditing && (
+                <Select
+                  label="Knowledge"
+                  options={knowledgeOptions}
+                  placeholder={
+                    knowledgeLoading
+                      ? "Loading knowledge..."
+                      : "Select knowledge"
+                  }
+                  value={targetId}
+                  onChange={setTargetId}
+                  disabled={knowledgeLoading}
+                />
+              )}
               <Select
                 label="Relation"
                 options={relationOptions}
@@ -207,7 +199,25 @@ const ConnectionDrawer = ({
                 onChange={handleRelationChange}
               />
 
-              {targetId && relation && (
+              {isEditing && editingConnection && (
+                <div className="border-border bg-background-secondary rounded-lg border p-4">
+                  <p className="text-text-secondary mb-2 text-xs uppercase">
+                    Connection preview
+                  </p>
+                  <p className="text-sm">
+                    {editingConnection.sourceTitle}
+                    <span className="text-primary mx-2">→</span>
+                    {
+                      relationOptions.find((item) => item.value === relation)
+                        ?.label
+                    }
+                    <span className="text-primary mx-2">→</span>
+                    {editingConnection.targetTitle}
+                  </p>
+                </div>
+              )}
+
+              {!isEditing && targetId && relation && (
                 <div className="border-border bg-background-secondary rounded-lg border p-4">
                   <p className="text-text-secondary mb-2 text-xs uppercase">
                     Connection preview
