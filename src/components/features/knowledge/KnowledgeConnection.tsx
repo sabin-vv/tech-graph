@@ -25,6 +25,10 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
   const [editingConnection, setEditingConnection] =
     useState<EditingConnection | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deletingConnectionId, setDeletingConnectionId] = useState<string | null>(
+    null,
+  )
   const { data, loading, error, refetch } = useQuery(
     GET_CONNECTIONS_BY_KNOWLEDGE,
     {
@@ -77,6 +81,9 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
       return
     }
 
+    setDeleteError(null)
+    setDeletingConnectionId(id)
+
     try {
       await deleteConnection({
         variables: {
@@ -86,32 +93,56 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
       await refetch()
     } catch (error) {
       console.error("Failed to delete Connection", error)
+      setDeleteError("Unable to delete the connection. Please try again.")
+    } finally {
+      setDeletingConnectionId(null)
     }
   }
 
   const connections = data?.connectionsByKnowledge ?? []
   return (
-    <div className="border-border mb-1 rounded-lg border">
+    <div className="border-border rounded-lg border">
       <div className="flex justify-between p-4">
-        <h1 className="flex items-center gap-2 text-xl">
+        <h2 className="flex items-center gap-2 text-xl">
           <Waypoints size={20} color="#2698ff" />
           Graph Connection
-        </h1>
+        </h2>
         <Button variant="secondary" onClick={handleAddConnection}>
           Add connection
         </Button>
       </div>
 
+      {deleteError && (
+        <p className="px-4 pb-3 text-sm text-red-400" role="alert">
+          {deleteError}
+        </p>
+      )}
+
       {loading && (
-        <p className="py-4 text-sm text-red-400">Loading Connection...</p>
+        <p className="text-text-secondary bg-surface px-4 py-4 text-sm" role="status">
+          Loading connections...
+        </p>
       )}
 
       {error && (
-        <p className="py-4 text-sm text-red-400">Failed to load connections.</p>
+        <div
+          className="bg-surface flex flex-wrap items-center gap-3 px-4 py-4"
+          role="alert"
+        >
+          <p className="text-red-400">
+            Unable to load connections. Please try again.
+          </p>
+          <Button variant="outline" onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </div>
       )}
 
       {!loading && !error && connections.length === 0 && (
-        <p className="py-4 text-sm text-red-400">No connections found</p>
+        <p className="text-text-secondary bg-surface px-4 py-4 text-sm">
+          No connections yet. Add a connection to link this knowledge to another
+          item.
+        </p>
       )}
       {!loading && !error && connections.length > 0 && (
         <ol className="bg-surface px-4">
@@ -149,6 +180,8 @@ const KnowledgeConnection = ({ knowledgeId }: KnowledgeConnectionProps) => {
                     size="sm"
                     onClick={() => handleDelete(connection.id)}
                     disabled={deleting}
+                    loading={deletingConnectionId === connection.id}
+                    aria-label={`Delete connection to ${connectedKnowledge.title}`}
                   >
                     <Trash2 size={14} />
                   </Button>

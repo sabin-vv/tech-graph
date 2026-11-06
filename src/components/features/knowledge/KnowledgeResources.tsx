@@ -61,7 +61,7 @@ const KnowledgeResources = ({ knowledgeId }: KnowledgeResourcesProps) => {
   }
 
   return (
-    <section className="border-border mt-7 rounded-lg border">
+    <section className="border-border rounded-lg border">
       <div className="border-border flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-2">
           <FileText size={20} className="text-primary" />
