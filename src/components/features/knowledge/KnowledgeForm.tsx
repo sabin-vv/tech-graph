@@ -1,18 +1,32 @@
 "use client"
 
-import { useState } from "react"
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useMutation } from "@apollo/client/react"
+import { useMutation, useQuery } from "@apollo/client/react"
 import { gql } from "@apollo/client"
 import Input from "@/components/ui/Input"
 import Select, { SelectOption } from "@/components/ui/Select"
 import Textarea from "@/components/ui/Textarea"
 import Button from "@/components/ui/Button"
 import { X } from "lucide-react"
+import { GET_KNOWLEDGE_BY_ID } from "@/graphql/knowledge/queries"
+import KnowledgePreview from "./KnowledgePreview"
+import type { KnowledgeType } from "@/generated/graphql/graphql"
 
 const CREATE_KNOWLEDGE = gql`
   mutation CreateKnowledge($input: CreateKnowledgeInput!) {
     createKnowledge(input: $input) {
+      id
+      title
+    }
+  }
+`
+
+const UPDATE_KNOWLEDGE = gql`
+  mutation UpdateKnowledge($id: ID!, $input: UpdateKnowledgeInput!) {
+    updateKnowledge(id: $id, input: $input) {
       id
       title
     }
@@ -26,10 +40,22 @@ interface CreateKnowledgeData {
   }
 }
 
-const KnowledgeForm = () => {
+interface UpdateKnowledgeData {
+  updateKnowledge: {
+    id: string
+    title: string
+  }
+}
+
+interface KnowledgeFormProps {
+  knowledgeId?: string
+}
+
+const KnowledgeForm = ({ knowledgeId }: KnowledgeFormProps) => {
   const router = useRouter()
+  const isEditing = Boolean(knowledgeId)
   const [title, setTitle] = useState("")
-  const [type, setType] = useState<string>("")
+  const [type, setType] = useState<KnowledgeType | "">("")
   const [description, setDescription] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
@@ -40,7 +66,22 @@ const KnowledgeForm = () => {
   const MAX_TAG_LENGTH = 30
   const MAX_TAG_COUNT = 10
 
+  const { data: existingData, loading: loadingKnowledge } = useQuery(
+    GET_KNOWLEDGE_BY_ID,
+    { variables: { id: knowledgeId ?? "" }, skip: !knowledgeId },
+  )
   const [createKnowledge] = useMutation<CreateKnowledgeData>(CREATE_KNOWLEDGE)
+  const [updateKnowledge] = useMutation<UpdateKnowledgeData>(UPDATE_KNOWLEDGE)
+
+  useEffect(() => {
+    const existing = existingData?.knowledgeById
+    if (!existing) return
+
+    setTitle(existing.title)
+    setType(existing.type)
+    setDescription(existing.description)
+    setTags(existing.tags)
+  }, [existingData])
 
   const typeOptions: SelectOption[] = [
     { label: "Technology", value: "technology" },
@@ -48,6 +89,10 @@ const KnowledgeForm = () => {
     { label: "Algorithm", value: "algorithm" },
     { label: "Database", value: "database" },
   ]
+
+  const handleTypeChange = (value: string) => {
+    setType(value as KnowledgeType | "")
+  }
 
   const handleAddTag = (value: string) => {
     setTagError(null)
@@ -92,19 +137,27 @@ const KnowledgeForm = () => {
 
     setLoading(true)
     try {
-      const { data } = await createKnowledge({
-        variables: {
-          input: {
-            title,
-            description,
-            type,
-            tags,
-          },
-        },
-      })
+      let resultId: string | undefined
 
-      if (data?.createKnowledge?.id) {
-        router.push(`/knowledge/${data.createKnowledge.id}`)
+      if (isEditing) {
+        const { data } = await updateKnowledge({
+          variables: {
+            id: knowledgeId,
+            input: { title, description, type, tags },
+          },
+        })
+        resultId = data?.updateKnowledge.id
+      } else {
+        const { data } = await createKnowledge({
+          variables: {
+            input: { title, description, type, tags },
+          },
+        })
+        resultId = data?.createKnowledge?.id
+      }
+
+      if (resultId) {
+        router.push(`/knowledge/${resultId}`)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
@@ -113,109 +166,125 @@ const KnowledgeForm = () => {
     }
   }
 
+  if (loadingKnowledge) {
+    return <p className="text-text-secondary">Loading knowledge...</p>
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="w-3/4 space-y-5">
-      {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-          {error}
-        </div>
-      )}
+    <div className="grid w-full grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,0.8fr)]">
+      <form onSubmit={handleSubmit} className="min-w-0 space-y-5">
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+            {error}
+          </div>
+        )}
 
-      <div className="border-border bg-surface rounded-lg border p-4">
-        <h1 className="border-border mb-7 border-b-2 py-4 text-2xl">
-          Basic Information
-        </h1>
-        <div className="grid grid-cols-2 gap-5">
-          <Input
-            className="bg-background-secondary"
-            label="Knowledge Name"
-            placeholder="e.g., React, Event Sourcing, Kubernetes"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <Select
-            label="Type"
-            options={typeOptions}
-            value={type}
-            onChange={setType}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-5">
         <div className="border-border bg-surface rounded-lg border p-4">
           <h1 className="border-border mb-7 border-b-2 py-4 text-2xl">
-            Description
+            Basic Information
           </h1>
-          <Textarea
-            className="bg-background-secondary"
-            placeholder="Briefly describe this knowledge node..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div className="border-border bg-surface rounded-lg border p-4">
-          <h1 className="border-border mb-7 border-b-2 py-4 text-2xl">Tags</h1>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Input
+              className="bg-background-secondary"
+              label="Knowledge Name"
+              placeholder="e.g., React, Event Sourcing, Kubernetes"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          <div>
-            <div>
-              <Input
-                className="bg-background-secondary"
-                placeholder="Add tag..."
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                disabled={tags.length >= MAX_TAG_COUNT}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleAddTag(tagInput)
-                  }
-                }}
-              />
-              <div className="mt-1 flex items-center justify-between text-sm">
-                {tagError ? (
-                  <span className="text-red-500">{tagError}</span>
-                ) : (
-                  <span />
-                )}
-                <span className="text-text-muted">
-                  {tags.length}/{MAX_TAG_COUNT} tags
-                </span>
-              </div>
-            </div>
-
-            {tags.length > 0 && (
-              <div className="flex flex-wrap items-baseline gap-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-primary/10 text-primary inline-flex max-h-fit items-center gap-1 rounded-md px-2 py-1 text-sm"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="text-text-secondary hover:text-foreground cursor-pointer rounded p-0.5 transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+            <Select
+              label="Type"
+              options={typeOptions}
+              value={type}
+              onChange={handleTypeChange}
+            />
           </div>
         </div>
-      </div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <div className="border-border bg-surface rounded-lg border p-4">
+            <h1 className="border-border mb-7 border-b-2 py-4 text-2xl">
+              Description
+            </h1>
+            <Textarea
+              className="bg-background-secondary"
+              placeholder="Briefly describe this knowledge node..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="border-border bg-surface rounded-lg border p-4">
+            <h1 className="border-border mb-7 border-b-2 py-4 text-2xl">
+              Tags
+            </h1>
 
-      <div className="mt-7 mb-7 flex flex-row-reverse gap-3">
-        <Button type="submit" loading={loading} disabled={loading}>
-          Create Knowledge
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
-        </Button>
+            <div>
+              <div>
+                <Input
+                  className="bg-background-secondary"
+                  placeholder="Add tag..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  disabled={tags.length >= MAX_TAG_COUNT}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleAddTag(tagInput)
+                    }
+                  }}
+                />
+                <div className="mt-1 flex items-center justify-between text-sm">
+                  {tagError ? (
+                    <span className="text-red-500">{tagError}</span>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="text-text-muted">
+                    {tags.length}/{MAX_TAG_COUNT} tags
+                  </span>
+                </div>
+              </div>
+
+              {tags.length > 0 && (
+                <div className="flex flex-wrap items-baseline gap-2">
+                  {tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-primary/10 text-primary inline-flex max-h-fit items-center gap-1 rounded-md px-2 py-1 text-sm"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-text-secondary hover:text-foreground cursor-pointer rounded p-0.5 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-7 mb-7 flex flex-row-reverse gap-3">
+          <Button type="submit" loading={loading} disabled={loading}>
+            {isEditing ? "Save Changes" : "Create Knowledge"}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+      <div className="min-w-0 xl:sticky xl:top-6">
+        <KnowledgePreview
+          knowledgeId={knowledgeId}
+          title={title}
+          type={type}
+          tags={tags}
+        />
       </div>
-    </form>
+    </div>
   )
 }
 
