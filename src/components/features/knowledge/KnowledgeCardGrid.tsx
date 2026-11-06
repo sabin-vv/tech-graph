@@ -1,13 +1,19 @@
-import KnowledgeCard from "./KnowledgeCard";
+import KnowledgeCard from "./KnowledgeCard"
+import type { GetKnowledgeQuery } from "@/generated/graphql/graphql"
 
-const KnowledgeCardGrid = () => {
+type KnowledgeItem = GetKnowledgeQuery["knowledge"][number]
+
+interface KnowledgeCardGridProps {
+  knowledge: KnowledgeItem[]
+}
+
+const KnowledgeCardGrid = ({ knowledge }: KnowledgeCardGridProps) => {
   return (
-    <div className="mt-7 grid grid-cols-4 gap-4">
-      <KnowledgeCard />
-      <KnowledgeCard />
-      <KnowledgeCard />
-      <KnowledgeCard />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {knowledge.map((item) => (
+        <KnowledgeCard key={item.id} knowledge={item} />
+      ))}
     </div>
-  );
-};
-export default KnowledgeCardGrid;
+  )
+}
+export default KnowledgeCardGrid
