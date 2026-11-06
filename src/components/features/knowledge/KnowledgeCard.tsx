@@ -1,11 +1,21 @@
 import Link from "next/link"
-import { ArrowUpRight, Code2, Database, Lightbulb, Network } from "lucide-react"
+import {
+  ArrowUpRight,
+  Code2,
+  Database,
+  Lightbulb,
+  Network,
+  Pencil,
+  Trash2,
+} from "lucide-react"
 import type { GetKnowledgeQuery } from "@/generated/graphql/graphql"
 
 type KnowledgeItem = GetKnowledgeQuery["knowledge"][number]
 
 interface KnowledgeCardProps {
   knowledge: KnowledgeItem
+  management?: boolean
+  onDelete?: (id: string) => void
 }
 
 const typeStyles: Record<
@@ -38,7 +48,11 @@ const typeStyles: Record<
   },
 }
 
-const KnowledgeCard = ({ knowledge }: KnowledgeCardProps) => {
+const KnowledgeCard = ({
+  knowledge,
+  management = false,
+  onDelete,
+}: KnowledgeCardProps) => {
   const {
     icon: TypeIcon,
     label,
@@ -49,30 +63,50 @@ const KnowledgeCard = ({ knowledge }: KnowledgeCardProps) => {
   const remainingTagCount = knowledge.tags.length - visibleTags.length
 
   return (
-    <Link
-      href={`/knowledge/${knowledge.id}`}
-      className="group focus-visible:ring-primary block h-full rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
-    >
-      <article className="border-border bg-surface group-hover:border-border-hover relative flex h-full min-h-60 flex-col overflow-hidden rounded-2xl border transition duration-200 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-black/25">
+    <article className="group border-border bg-surface group-hover:border-border-hover relative flex h-full min-h-60 flex-col overflow-hidden rounded-2xl border transition duration-200 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-black/25">
         <div className={`h-1 w-full ${accent}`} />
         <div className="flex flex-1 flex-col p-5">
-          <div className="flex items-start justify-between">
-            <span className={`rounded-xl p-2.5 ${iconStyle}`}>
-              <TypeIcon size={18} aria-hidden="true" />
-            </span>
-            <span className="text-text-muted pt-1 text-xs font-medium tracking-wide uppercase">
-              {label}
-            </span>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className={`rounded-xl p-2.5 ${iconStyle}`}>
+                <TypeIcon size={18} aria-hidden="true" />
+              </span>
+              <span className="text-text-muted pt-1 text-sm font-medium tracking-wide uppercase">
+                {label}
+              </span>
+            </div>
+            {management && (
+              <div className="flex items-center gap-1">
+                <Link
+                  href={`/knowledge/${knowledge.id}/edit`}
+                  className="text-text-secondary hover:bg-background-secondary hover:text-foreground rounded-md p-1.5"
+                  aria-label={`Edit ${knowledge.title}`}
+                >
+                  <Pencil size={14} aria-hidden="true" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => onDelete?.(knowledge.id)}
+                  className="text-text-secondary rounded-md p-1.5 hover:bg-red-500/10 hover:text-red-400"
+                  aria-label={`Delete ${knowledge.title}`}
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                </button>
+              </div>
+            )}
           </div>
 
-          <div className="mt-4">
+          <Link
+            href={`/knowledge/${knowledge.id}`}
+            className="group/link mt-4 flex-1"
+          >
             <h2 className="line-clamp-2 text-xl font-semibold tracking-tight">
               {knowledge.title}
             </h2>
             <p className="text-text-secondary mt-2 line-clamp-3 text-sm leading-6">
               {knowledge.description}
             </p>
-          </div>
+          </Link>
 
           <div className="border-border mt-auto flex items-center justify-between gap-3 border-t pt-4">
             <ul className="flex min-w-0 flex-wrap gap-1.5">
@@ -90,15 +124,16 @@ const KnowledgeCard = ({ knowledge }: KnowledgeCardProps) => {
                 </li>
               )}
             </ul>
-            <ArrowUpRight
-              size={17}
-              className="text-text-muted group-hover:text-primary shrink-0 transition"
-              aria-hidden="true"
-            />
+            <Link
+              href={`/knowledge/${knowledge.id}`}
+              className="text-text-muted hover:text-primary shrink-0 transition"
+              aria-label={`Open ${knowledge.title}`}
+            >
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
           </div>
         </div>
       </article>
-    </Link>
   )
 }
 
