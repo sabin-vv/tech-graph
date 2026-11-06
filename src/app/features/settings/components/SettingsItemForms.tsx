@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
 import { settingsNavItems } from "../constants/settings.constants"
 import GeneralForm from "./SettingsForms/GeneralForm"
 import AppearanceForm from "./SettingsForms/AppearanceForm"
 import NotificationForm from "./SettingsForms/NotificationForm"
 import PrivacyAndDataForm from "./SettingsForms/PrivacyAndDataForm"
+import Button from "@/components/ui/Button"
 
 const formMap: Record<string, React.ComponentType> = {
   General: GeneralForm,
@@ -16,28 +17,36 @@ const formMap: Record<string, React.ComponentType> = {
 
 const SettingsItemForms = () => {
   const [selectedSection, setSelectedSection] = useState("General")
-  type SectionKey = keyof typeof formMap
   const ActiveForm = formMap[selectedSection]
 
   return (
-    <div>
-      <div className="flex gap-5">
+    <section className="min-w-0">
+      <nav
+        aria-label="Settings sections"
+        className="border-border flex gap-1 overflow-x-auto border-b px-2"
+      >
         {settingsNavItems.map((item) => (
-          <div
+          <Button
+            variant="ghost"
+            size="md"
+            type="button"
             key={item.title}
-            className="space-y-5 text-[16px] hover:cursor-pointer"
-            onClick={() => setSelectedSection(item.title as SectionKey)}
+            aria-pressed={selectedSection === item.title}
+            onClick={() => setSelectedSection(item.title)}
+            className={`inline-flex shrink-0 items-center gap-2 rounded-t-none border-x-0 border-t-0 border-b-2 px-4 text-sm font-medium transition-colors ${
+              selectedSection === item.title
+                ? "border-b-primary text-foreground rounded-b-md"
+                : "text-text-secondary hover:bg-surface-hover hover:text-foreground rounded-b-none border-b-transparent"
+            }`}
           >
-            <span className="hover:bg-surface-hover flex items-center gap-3 rounded-md px-4 py-2.5">
-              {<item.icon />}
-              {item.title}
-            </span>
-          </div>
+            <item.icon size={18} aria-hidden="true" />
+            {item.title}
+          </Button>
         ))}
-      </div>
+      </nav>
 
-      <div className="mt-6">{ActiveForm ? <ActiveForm /> : null}</div>
-    </div>
+      <div className="mt-6 min-w-0">{ActiveForm ? <ActiveForm /> : null}</div>
+    </section>
   )
 }
 export default SettingsItemForms

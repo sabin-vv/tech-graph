@@ -1,5 +1,3 @@
-"use client"
-
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import PageHeading from "@/components/layout/PageHeading"
 import SettingsItemForms from "../features/settings/components/SettingsItemForms"
