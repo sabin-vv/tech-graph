@@ -14,6 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n": typeof types.GetRecentActivityDocument,
     "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.LoginDocument,
     "\n  mutation Signup($input: SignupInput!) {\n    signup(input: $input) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.SignupDocument,
     "\n  mutation UpdateProfile($input: UpdateProfileInput!) {\n    updateProfile(input: $input) {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": typeof types.UpdateProfileDocument,
@@ -35,6 +36,7 @@ type Documents = {
     "\n  query GetResourcesByKnowledge($id: ID!) {\n    resourcesByKnowledge(id: $id) {\n      id\n      userId\n      knowledgeId\n      title\n      url\n      type\n      description\n      user {\n        id\n        name\n      }\n      knowledge {\n        id\n        title\n        type\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetResourcesByKnowledgeDocument,
 };
 const documents: Documents = {
+    "\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n": types.GetRecentActivityDocument,
     "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.LoginDocument,
     "\n  mutation Signup($input: SignupInput!) {\n    signup(input: $input) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.SignupDocument,
     "\n  mutation UpdateProfile($input: UpdateProfileInput!) {\n    updateProfile(input: $input) {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": types.UpdateProfileDocument,
@@ -70,6 +72,10 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n"): (typeof documents)["\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
