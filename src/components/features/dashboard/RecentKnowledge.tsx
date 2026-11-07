@@ -1,140 +1,68 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { gql } from "@apollo/client"
 import { useQuery } from "@apollo/client/react"
 import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  BookOpen,
   Tag,
   GitBranch,
   Clock,
-  MoreHorizontal,
 } from "lucide-react"
 import Link from "next/link"
 import SectionHeader from "@/components/layout/SectionHeader"
 import Button from "@/components/ui/Button"
-
-const GET_RECENT_KNOWLEDGE = gql`
-  query GetRecentKnowledge {
-    knowledge {
-      id
-      title
-      type
-      tags
-      updatedAt
-    }
-  }
-`
-
-const GET_RECENT_CONNECTIONS = gql`
-  query GetRecentKnowledgeConnections {
-    connections {
-      source {
-        id
-      }
-      target {
-        id
-      }
-    }
-  }
-`
-
-type KnowledgeType = "algorithm" | "concept" | "database" | "technology"
-
-interface KnowledgeItem {
-  id: string
-  title: string
-  type: KnowledgeType
-  tags: string[]
-  updatedAt: string
-}
-
-interface ConnectionItem {
-  source: { id: string }
-  target: { id: string }
-}
-
-interface RecentKnowledgeData {
-  knowledge: KnowledgeItem[]
-}
-
-interface RecentConnectionsData {
-  connections: ConnectionItem[]
-}
-
-type SortField = "title" | "type" | "tags" | "connections" | "updated"
-type SortDirection = "asc" | "desc"
-
-interface SortState {
-  field: SortField
-  direction: SortDirection
-}
-
-const TYPE_LABELS: Record<KnowledgeType, string> = {
-  algorithm: "Algorithm",
-  concept: "Core Concept",
-  database: "Database",
-  technology: "Technology",
-}
-
-const TYPE_COLORS: Record<KnowledgeType, string> = {
-  algorithm: "text-blue-600 bg-blue-100",
-  concept: "text-green-600 bg-green-100",
-  database: "text-purple-600 bg-purple-100",
-  technology: "text-orange-600 bg-orange-100",
-}
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 1) return "Just now"
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-  })
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import {
+  Table as SharedTable,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow as SharedTableRow,
+} from "@/components/ui/Table"
+import {
+  GET_RECENT_KNOWLEDGE,
+  GET_RECENT_KNOWLEDGE_CONNECTIONS,
+} from "@/graphql/dashboard/queries"
+import { GET_RESOURCES } from "@/graphql/resource/queries"
+import {
+  formatRelativeTime,
+  sortKnowledgeItems,
+  TYPE_COLORS,
+  TYPE_LABELS,
+  type KnowledgeItem,
+  type KnowledgeItemWithConnectionCount,
+  type KnowledgeType,
+  type SortField,
+  type SortState,
+} from "./recentKnowledgeUtils"
+import { formatDate } from "@/utils/date"
 
 function SortableHeader({
   label,
   field,
   currentSort,
   onSort,
+  className = "",
+  align = "left",
 }: {
   label: string
   field: SortField
   currentSort: SortState
   onSort: (field: SortField) => void
+  className?: string
+  align?: "left" | "center"
 }) {
   const isActive = currentSort.field === field
   const direction = isActive ? currentSort.direction : null
 
   return (
-    <th
+    <TableHead
       scope="col"
-      className="px-3 py-2"
+      className={`px-3 py-2 ${className}`}
       aria-sort={
         isActive ? (direction === "asc" ? "ascending" : "descending") : "none"
       }
@@ -142,7 +70,9 @@ function SortableHeader({
       <button
         type="button"
         onClick={() => onSort(field)}
-        className="text-text-secondary hover:text-foreground flex w-full items-center gap-1 text-left text-xs font-medium tracking-wider uppercase transition-colors"
+        className={`text-text-secondary hover:text-foreground flex w-full items-center gap-1 text-xs font-semibold tracking-normal transition-colors ${
+          align === "center" ? "justify-center text-center" : "text-left"
+        }`}
       >
         {label}
         {isActive && (
@@ -158,7 +88,7 @@ function SortableHeader({
           <ChevronDown size={10} className="text-text-tertiary opacity-50" />
         )}
       </button>
-    </th>
+    </TableHead>
   )
 }
 
@@ -221,7 +151,13 @@ function UpdatedCell({ date }: { date: string }) {
     <time
       dateTime={date}
       className="text-text-tertiary text-sm whitespace-nowrap"
-      title={formatDate(date)}
+      title={formatDate(date, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
     >
       {formatRelativeTime(date)}
     </time>
@@ -231,40 +167,52 @@ function UpdatedCell({ date }: { date: string }) {
 function TableRow({
   item,
   connectionCount,
+  resourceCount,
   updatedAt,
 }: {
   item: KnowledgeItem
   connectionCount: number
+  resourceCount: number
   updatedAt: string
 }) {
   return (
-    <tr className="border-border border-opacity-10 hover:bg-surface/50 border-b transition-colors">
-      <td className="text-text px-3 py-3 font-medium">
-        <span className="block max-w-xs truncate">{item.title}</span>
-      </td>
-      <td className="px-3 py-3">
+    <SharedTableRow className="group">
+      <TableCell className="text-text font-medium">
+        <Link
+          href={`/knowledge/${item.id}`}
+          className="group-hover:text-primary block max-w-xs truncate transition-colors"
+        >
+          {item.title}
+        </Link>
+      </TableCell>
+      <TableCell>
         <KnowledgeTypeBadge type={item.type} />
-      </td>
-      <td className="px-3 py-3">
+      </TableCell>
+      <TableCell>
         <TagsCell tags={item.tags} />
-      </td>
-      <td className="px-3 py-3 text-center">
+      </TableCell>
+      <TableCell className="text-center">
         <ConnectionsCell count={connectionCount} />
-      </td>
-      <td className="px-3 py-3 text-center">
+      </TableCell>
+      <TableCell className="text-center">
+        <ConnectionsCell count={resourceCount} />
+      </TableCell>
+      <TableCell className="text-center">
         <UpdatedCell date={updatedAt} />
-      </td>
-    </tr>
+      </TableCell>
+    </SharedTableRow>
   )
 }
 
 function MobileCard({
   item,
   connectionCount,
+  resourceCount,
   updatedAt,
 }: {
   item: KnowledgeItem
   connectionCount: number
+  resourceCount: number
   updatedAt: string
 }) {
   return (
@@ -279,13 +227,6 @@ function MobileCard({
             <TagsCell tags={item.tags} maxVisible={3} />
           </div>
         </div>
-        <button
-          type="button"
-          className="text-text-tertiary hover:text-foreground shrink-0 rounded p-1 transition-colors"
-          aria-label={`More options for ${item.title}`}
-        >
-          <MoreHorizontal size={16} />
-        </button>
       </div>
       <div className="border-border/20 mt-4 flex flex-wrap items-center justify-between gap-4 border-t pt-4">
         <div className="text-text-secondary flex items-center gap-4 text-sm">
@@ -296,8 +237,23 @@ function MobileCard({
             </span>
           </div>
           <div className="flex items-center gap-1">
+            <BookOpen size={14} aria-hidden="true" />
+            <span>
+              {resourceCount} resource{resourceCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
             <Clock size={14} aria-hidden="true" />
-            <time dateTime={updatedAt} title={formatDate(updatedAt)}>
+            <time
+              dateTime={updatedAt}
+              title={formatDate(updatedAt, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            >
               {formatRelativeTime(updatedAt)}
             </time>
           </div>
@@ -309,30 +265,33 @@ function MobileCard({
 
 function LoadingSkeleton() {
   return (
-    <tbody>
+    <TableBody>
       {Array.from({ length: 5 }).map((_, i) => (
-        <tr key={i} className="border-border border-opacity-10 border-b">
-          <td className="px-3 py-3">
+        <SharedTableRow key={i}>
+          <TableCell>
             <div className="bg-surface-elevated h-4 w-3/4 animate-pulse rounded" />
-          </td>
-          <td className="px-3 py-3">
+          </TableCell>
+          <TableCell>
             <div className="bg-surface-elevated h-5 w-24 animate-pulse rounded-full" />
-          </td>
-          <td className="px-3 py-3">
+          </TableCell>
+          <TableCell>
             <div className="flex gap-1">
               <div className="bg-surface-elevated h-5 w-16 animate-pulse rounded-full" />
               <div className="bg-surface-elevated h-5 w-16 animate-pulse rounded-full" />
             </div>
-          </td>
-          <td className="px-3 py-3 text-center">
+          </TableCell>
+          <TableCell className="text-center">
             <div className="bg-surface-elevated mx-auto h-4 w-8 animate-pulse rounded" />
-          </td>
-          <td className="px-3 py-3 text-center">
+          </TableCell>
+          <TableCell className="text-center">
+            <div className="bg-surface-elevated mx-auto h-4 w-8 animate-pulse rounded" />
+          </TableCell>
+          <TableCell className="text-center">
             <div className="bg-surface-elevated mx-auto h-4 w-24 animate-pulse rounded" />
-          </td>
-        </tr>
+          </TableCell>
+        </SharedTableRow>
       ))}
-    </tbody>
+    </TableBody>
   )
 }
 
@@ -399,7 +358,7 @@ export default function RecentKnowledge() {
     loading: knowledgeLoading,
     error: knowledgeError,
     refetch: refetchKnowledge,
-  } = useQuery<RecentKnowledgeData>(GET_RECENT_KNOWLEDGE, {
+  } = useQuery(GET_RECENT_KNOWLEDGE, {
     fetchPolicy: "cache-and-network",
   })
 
@@ -408,12 +367,21 @@ export default function RecentKnowledge() {
     loading: connectionLoading,
     error: connectionError,
     refetch: refetchConnections,
-  } = useQuery<RecentConnectionsData>(GET_RECENT_CONNECTIONS, {
+  } = useQuery(GET_RECENT_KNOWLEDGE_CONNECTIONS, {
     fetchPolicy: "cache-and-network",
   })
 
-  const isLoading = knowledgeLoading || connectionLoading
-  const error = knowledgeError || connectionError
+  const {
+    data: resourceData,
+    loading: resourceLoading,
+    error: resourceError,
+    refetch: refetchResources,
+  } = useQuery(GET_RESOURCES, {
+    fetchPolicy: "cache-and-network",
+  })
+
+  const isLoading = knowledgeLoading || connectionLoading || resourceLoading
+  const error = knowledgeError || connectionError || resourceError
 
   const connectionCountMap = useMemo(() => {
     const map = new Map<string, number>()
@@ -429,53 +397,30 @@ export default function RecentKnowledge() {
     return map
   }, [connectionData])
 
-  const knowledgeItems = useMemo(() => {
+  const resourceCountMap = useMemo(() => {
+    const map = new Map<string, number>()
+
+    resourceData?.resources?.forEach((resource) => {
+      map.set(resource.knowledgeId, (map.get(resource.knowledgeId) ?? 0) + 1)
+    })
+
+    return map
+  }, [resourceData])
+
+  const knowledgeItems = useMemo<KnowledgeItemWithConnectionCount[]>(() => {
     if (!knowledgeData?.knowledge) return []
 
     return knowledgeData.knowledge.map((item) => ({
       ...item,
       connectionCount: connectionCountMap.get(item.id) || 0,
+      resourceCount: resourceCountMap.get(item.id) || 0,
     }))
-  }, [knowledgeData, connectionCountMap])
+  }, [knowledgeData, connectionCountMap, resourceCountMap])
 
-  const sortedItems = useMemo(() => {
-    const items = [...knowledgeItems]
-    items.sort((a, b) => {
-      let aVal: string | number
-      let bVal: string | number
-
-      switch (sortState.field) {
-        case "title":
-          aVal = a.title.toLowerCase()
-          bVal = b.title.toLowerCase()
-          break
-        case "type":
-          aVal = TYPE_LABELS[a.type]
-          bVal = TYPE_LABELS[b.type]
-          break
-        case "tags":
-          aVal = a.tags.join(", ").toLowerCase()
-          bVal = b.tags.join(", ").toLowerCase()
-          break
-        case "connections":
-          aVal = a.connectionCount
-          bVal = b.connectionCount
-          break
-        case "updated":
-          aVal = new Date(a.updatedAt).getTime()
-          bVal = new Date(b.updatedAt).getTime()
-          break
-        default:
-          return 0
-      }
-
-      if (aVal < bVal) return sortState.direction === "asc" ? -1 : 1
-      if (aVal > bVal) return sortState.direction === "asc" ? 1 : -1
-      return 0
-    })
-
-    return items.slice(0, 10)
-  }, [knowledgeItems, sortState])
+  const sortedItems = useMemo(
+    () => sortKnowledgeItems(knowledgeItems, sortState),
+    [knowledgeItems, sortState],
+  )
 
   const handleSort = (field: SortField) => {
     setSortState((prev) => ({
@@ -486,7 +431,11 @@ export default function RecentKnowledge() {
   }
 
   const handleRetry = () => {
-    void Promise.all([refetchKnowledge(), refetchConnections()])
+    void Promise.all([
+      refetchKnowledge(),
+      refetchConnections(),
+      refetchResources(),
+    ])
   }
 
   if (isLoading) {
@@ -501,28 +450,19 @@ export default function RecentKnowledge() {
           description="Your most recently updated knowledge items"
         />
         <div className="overflow-x-auto">
-          <table className="w-full" role="table">
-            <thead>
-              <tr className="border-border border-opacity-40 border-b">
-                <th className="text-text-secondary px-3 py-2 text-xs font-medium tracking-wider uppercase">
-                  KNOWLEDGE
-                </th>
-                <th className="text-text-secondary px-3 py-2 text-xs font-medium tracking-wider uppercase">
-                  TYPE
-                </th>
-                <th className="text-text-secondary px-3 py-2 text-xs font-medium tracking-wider uppercase">
-                  TAGS
-                </th>
-                <th className="text-text-secondary px-3 py-2 text-xs font-medium tracking-wider uppercase">
-                  CONNECTIONS
-                </th>
-                <th className="text-text-secondary px-3 py-2 text-xs font-medium tracking-wider uppercase">
-                  UPDATED
-                </th>
-              </tr>
-            </thead>
+          <SharedTable role="table" className="min-w-205 table-fixed">
+            <TableHeader className="bg-background-secondary/40">
+              <SharedTableRow>
+                <TableHead className="w-1/6">Knowledge</TableHead>
+                <TableHead className="w-1/6">Type</TableHead>
+                <TableHead className="w-1/6">Tags</TableHead>
+                <TableHead className="w-1/6 text-center">Connections</TableHead>
+                <TableHead className="w-1/6 text-center">Resources</TableHead>
+                <TableHead className="w-1/6 text-center">Updated</TableHead>
+              </SharedTableRow>
+            </TableHeader>
             <LoadingSkeleton />
-          </table>
+          </SharedTable>
         </div>
       </section>
     )
@@ -572,55 +512,71 @@ export default function RecentKnowledge() {
       />
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full" role="table">
-          <caption id="recent-knowledge-heading" className="sr-only">
+        <SharedTable role="table" className="min-w-205 table-fixed">
+          <TableCaption id="recent-knowledge-heading" className="sr-only">
             Recently added knowledge items
-          </caption>
-          <thead>
-            <tr className="border-border border-opacity-40 border-b">
+          </TableCaption>
+          <TableHeader className="bg-background-secondary/40">
+            <SharedTableRow>
               <SortableHeader
                 label="Knowledge"
                 field="title"
                 currentSort={sortState}
                 onSort={handleSort}
+                className="w-1/6"
               />
               <SortableHeader
                 label="Type"
                 field="type"
                 currentSort={sortState}
                 onSort={handleSort}
+                className="w-1/6"
               />
               <SortableHeader
                 label="Tags"
                 field="tags"
                 currentSort={sortState}
                 onSort={handleSort}
+                className="w-1/6"
               />
               <SortableHeader
                 label="Connections"
                 field="connections"
                 currentSort={sortState}
                 onSort={handleSort}
+                className="w-1/6 text-center"
+                align="center"
+              />
+              <SortableHeader
+                label="Resources"
+                field="resources"
+                currentSort={sortState}
+                onSort={handleSort}
+                className="w-1/6 text-center"
+                align="center"
               />
               <SortableHeader
                 label="Updated"
                 field="updated"
                 currentSort={sortState}
                 onSort={handleSort}
+                className="w-1/6 text-center"
+                align="center"
               />
-            </tr>
-          </thead>
-          <tbody>
+            </SharedTableRow>
+          </TableHeader>
+          <TableBody>
             {sortedItems.map((item) => (
               <TableRow
                 key={item.id}
                 item={item}
                 connectionCount={item.connectionCount}
+                resourceCount={item.resourceCount}
                 updatedAt={item.updatedAt}
               />
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </SharedTable>
       </div>
 
       <div className="divide-border divide-y md:hidden">
@@ -629,6 +585,7 @@ export default function RecentKnowledge() {
             key={item.id}
             item={item}
             connectionCount={item.connectionCount}
+            resourceCount={item.resourceCount}
             updatedAt={item.updatedAt}
           />
         ))}
