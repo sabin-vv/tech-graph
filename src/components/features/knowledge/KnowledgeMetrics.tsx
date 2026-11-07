@@ -1,19 +1,13 @@
 import { useQuery } from "@apollo/client/react"
 import { GET_CONNECTIONS_BY_KNOWLEDGE } from "@/graphql/connection/queries"
 import { GET_RESOURCE_BY_KNOWLEDGE } from "@/graphql/resource/queries"
+import { formatDate } from "@/utils/date"
 
 interface KnowledgeMetricsProps {
   knowledgeId: string
   tags: string[]
   updatedAt: string
 }
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value))
 
 const KnowledgeMetrics = ({
   knowledgeId,

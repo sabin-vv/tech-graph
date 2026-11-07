@@ -1,5 +1,6 @@
 import { BookOpen, Clock, Edit, GitBranch, Plus, Trash2 } from "lucide-react"
 import type { GetRecentActivityQuery } from "@/generated/graphql/graphql"
+import { formatDate } from "@/utils/date"
 
 type ActivityItem =
   GetRecentActivityQuery["recentActivity"]["items"][number]
@@ -36,16 +37,6 @@ function getActivityIcon(activity: ActivityItem) {
     updated: Edit,
     deleted: Trash2,
   }[activity.action]
-}
-
-function formatActivityDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return "Unknown date"
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date)
 }
 
 interface ActivityListProps {
@@ -88,7 +79,10 @@ const ActivityList = ({ activities }: ActivityListProps) => (
                 dateTime={activity.createdAt}
                 suppressHydrationWarning
               >
-                {formatActivityDate(activity.createdAt)}
+                {formatDate(activity.createdAt, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
               </time>
             </div>
           </div>

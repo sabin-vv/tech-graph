@@ -1,17 +1,11 @@
 import { CalendarDays, Info, RotateCcwClock } from "lucide-react"
+import { formatDate } from "@/utils/date"
 
 interface KnowledgrDescriptionProps {
   description: string
   createdAt: string
   updatedAt: string
 }
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value))
 
 const KnowledgeDescription = ({
   description,
