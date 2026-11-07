@@ -1,21 +1,47 @@
 "use client"
+
+import { useSyncExternalStore } from "react"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import KnowledgeMetrics from "@/components/features/dashboard/KnowledgeMetrics"
 import GraphPreview from "@/components/features/dashboard/GraphPreview"
 import RecentActivity from "@/components/features/dashboard/RecentActivity"
 import RecentKnowledge from "@/components/features/dashboard/RecentKnowledge"
-
 import { Network } from "lucide-react"
 import Button from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
 import PageHeader from "@/components/layout/PageHeader"
+import { ME } from "@/graphql/auth/queries"
+import { useQuery } from "@apollo/client/react"
+
+const getGreeting = () => {
+  const hour = new Date().getHours()
+
+  if (hour < 12) return "Good morning"
+  if (hour < 18) return "Good afternoon"
+  return "Good evening"
+}
+
+const subscribeToGreeting = (callback: () => void) => {
+  const intervalId = window.setInterval(callback, 60_000)
+  return () => window.clearInterval(intervalId)
+}
+
+const getServerGreeting = () => "Welcome"
 
 const DashboardPage = () => {
   const router = useRouter()
+  const { data } = useQuery(ME)
+  const greeting = useSyncExternalStore(
+    subscribeToGreeting,
+    getGreeting,
+    getServerGreeting,
+  )
+  const name = data?.me?.name.trim()
+
   return (
     <DashboardLayout>
       <PageHeader
-        title={`Good Morning, Sabin`}
+        title={`${greeting}${name ? `, ${name}` : ""}`}
         description="Ready to expand your knowledge network today?"
         actions={
           <Button

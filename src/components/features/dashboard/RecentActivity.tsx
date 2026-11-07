@@ -15,7 +15,7 @@ const RecentActivity = () => {
   const activityPage = data?.recentActivity
 
   return (
-    <section className="border-border overflow-hidden rounded-lg border">
+    <section className="border-border flex h-full flex-col overflow-hidden rounded-lg border">
       <SectionHeader
         title="Recent Activity"
         description="Your latest knowledge updates"
@@ -30,13 +30,19 @@ const RecentActivity = () => {
       />
 
       {loading && !data && (
-        <p className="text-text-secondary px-4 py-6 text-sm" role="status">
+        <p
+          className="text-text-secondary flex flex-1 items-center justify-center px-4 py-6 text-center text-sm"
+          role="status"
+        >
           Loading recent activity...
         </p>
       )}
 
       {error && (
-        <div className="flex flex-col items-start gap-3 px-4 py-6" role="alert">
+        <div
+          className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-6 text-center"
+          role="alert"
+        >
           <p className="text-sm text-red-400">
             Unable to load recent activity.
           </p>
@@ -52,7 +58,7 @@ const RecentActivity = () => {
       )}
 
       {!loading && !error && activityPage?.items.length === 0 && (
-        <p className="text-text-secondary px-4 py-6 text-sm">
+        <p className="text-text-secondary flex flex-1 items-center justify-center px-4 py-6 text-center text-sm">
           Your activity will appear here as you add or update knowledge.
         </p>
       )}

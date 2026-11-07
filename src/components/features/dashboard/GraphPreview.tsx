@@ -317,7 +317,7 @@ export default function GraphPreview() {
   const error = knowledgeError || connectionError
 
   return (
-    <section className="border-border bg-surface overflow-hidden rounded-xl border">
+    <section className="border-border bg-surface h-full overflow-hidden rounded-xl border">
       <style>{hiddenHandleStyle}</style>
       <SectionHeader
         title="Knowledge Graph"
