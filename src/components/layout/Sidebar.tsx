@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { removeAuthToken } from "@/lib/auth"
 
 import Button from "../ui/Button"
-import { knowledgeNavigation, mainNavigation } from "./navLinks"
+import { mainNavigation } from "./navLinks"
 
 const Sidebar = () => {
   const pathname = usePathname()
@@ -64,19 +64,6 @@ const Sidebar = () => {
 
         <h4 className="text-text-muted text-xs tracking-wide">MAIN</h4>
         {mainNavigation.map(({ label, href, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={navLinkClass(href)}
-            aria-current={isActive(href) ? "page" : undefined}
-          >
-            <Icon size={16} />
-            {label}
-          </Link>
-        ))}
-
-        <h4 className="text-text-muted text-xs tracking-wide">KNOWLEDGE</h4>
-        {knowledgeNavigation.map(({ label, href, icon: Icon }) => (
           <Link
             key={href}
             href={href}

@@ -1,4 +1,10 @@
-import { BookOpen, Brain, Compass, LayoutDashboard, Network, Tags } from "lucide-react"
+import {
+  Activity,
+  BookOpen,
+  Compass,
+  LayoutDashboard,
+  Network,
+} from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export interface NavigationItem {
@@ -14,6 +20,11 @@ export const mainNavigation: NavigationItem[] = [
     icon: LayoutDashboard,
   },
   {
+    label: "My Knowledge",
+    href: "/knowledge",
+    icon: BookOpen,
+  },
+  {
     label: "Explore",
     href: "/explore",
     icon: Compass,
@@ -23,22 +34,9 @@ export const mainNavigation: NavigationItem[] = [
     href: "/graph",
     icon: Network,
   },
-]
-
-export const knowledgeNavigation: NavigationItem[] = [
   {
-    label: "Concepts",
-    href: "/concepts",
-    icon: Brain,
-  },
-  {
-    label: "Resources",
-    href: "/resources",
-    icon: BookOpen,
-  },
-  {
-    label: "Tags",
-    href: "/tags",
-    icon: Tags,
+    label: "Activity",
+    href: "/activity",
+    icon: Activity,
   },
 ]
