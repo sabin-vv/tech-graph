@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
 import Textarea from "@/components/ui/Textarea"
 import { UPDATE_PROFILE } from "@/graphql/auth/mutations"
+import { useAuth } from "@/components/auth/AuthContext"
 import {
   skillsSchema,
   updateProfileSchema,
@@ -14,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { X } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import type { MeQuery } from "@/generated/graphql/graphql"
 
 const MAX_SKILL_COUNT = 10
 const MAX_SKILL_LENGTH = 30
@@ -23,16 +25,7 @@ const SKILL_CHIP_CLASS =
 
 type ProfileFormData = Omit<UpdateProfileData, "skills">
 
-interface User {
-  id: string
-  name: string
-  email: string
-  jobTitle: string | null
-  location: string | null
-  bio: string | null
-  skills: string[]
-  avatarUrl: string | null
-}
+type User = NonNullable<MeQuery["me"]>
 
 interface EditProfileProps {
   editStatus: (value: boolean) => void
@@ -40,6 +33,7 @@ interface EditProfileProps {
 }
 
 const EditProfile = ({ editStatus, userData }: EditProfileProps) => {
+  const { updateUser } = useAuth()
   const [pageError, setPageError] = useState<string | null>(null)
   const [skills, setSkills] = useState<string[]>(userData.skills)
   const [skillInput, setSkillInput] = useState("")
@@ -112,7 +106,7 @@ const EditProfile = ({ editStatus, userData }: EditProfileProps) => {
     }
 
     try {
-      await updateProfile({
+      const { data } = await updateProfile({
         variables: {
           input: {
             ...formData,
@@ -120,6 +114,8 @@ const EditProfile = ({ editStatus, userData }: EditProfileProps) => {
           },
         },
       })
+      if (!data?.updateProfile) throw new Error("Unable to update your profile")
+      updateUser(data.updateProfile)
       editStatus(false)
     } catch (error) {
       setPageError(

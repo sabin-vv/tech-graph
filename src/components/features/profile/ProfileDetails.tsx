@@ -1,5 +1,4 @@
 "use client"
-import { ME } from "@/graphql/auth/queries"
 import { GET_KNOWLEDGE } from "@/graphql/knowledge/queries"
 import { GET_RESOURCES } from "@/graphql/resource/queries"
 import { useQuery } from "@apollo/client/react"
@@ -8,6 +7,7 @@ import { Mail, MapPin, Pen } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import EditProfile from "./EditProfile"
+import { useAuth } from "@/components/auth/AuthContext"
 
 const SKILL_CHIP_CLASS =
   "border-border text-primary bg-primary/10 rounded-md border px-3 py-1 text-sm"
@@ -31,11 +31,7 @@ const StatCard = ({ label, value, loading }: StatCardProps) => (
 
 const ProfileDetails = () => {
   const [editForm, setEditForm] = useState<boolean>(false)
-  const {
-    data: userData,
-    loading: userLoading,
-    error: userError,
-  } = useQuery(ME)
+  const { user, loading: userLoading, error: userError, refreshUser } = useAuth()
 
   const { data: knowledgeData, loading: knowledgeLoading } =
     useQuery(GET_KNOWLEDGE)
@@ -43,17 +39,24 @@ const ProfileDetails = () => {
   const { data: resourceData, loading: resourceLoading } =
     useQuery(GET_RESOURCES)
 
-  const user = userData?.me
-
   if (userLoading) {
     return <p className="text-text-secondary text-sm">Loading Profile...</p>
   }
 
   if (userError || !user) {
     return (
-      <p className="text-danger text-sm">
-        Failed to load profile. Please try again.
-      </p>
+      <div className="flex items-center gap-3">
+        <p className="text-danger text-sm">
+          Failed to load profile. Please try again.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void refreshUser().catch(() => {})}
+        >
+          Retry
+        </Button>
+      </div>
     )
   }
 
