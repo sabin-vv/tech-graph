@@ -1,37 +1,16 @@
 "use client"
 import { LogOut, Plus, Settings } from "lucide-react"
-import { useApolloClient } from "@apollo/client/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { removeAuthToken } from "@/lib/auth"
+import { usePathname } from "next/navigation"
+import { useAuth } from "@/components/auth/AuthContext"
 
 import Button from "../ui/Button"
 import { mainNavigation } from "./navLinks"
 
 const Sidebar = () => {
   const pathname = usePathname()
-
-  const client = useApolloClient()
-  const router = useRouter()
-
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  const handleLogout = async () => {
-    if (loggingOut) {
-      return
-    }
-
-    setLoggingOut(true)
-    removeAuthToken()
-
-    try {
-      await client.clearStore()
-    } finally {
-      router.replace("/login")
-    }
-  }
+  const { loggingOut, logout } = useAuth()
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`)
@@ -86,7 +65,7 @@ const Sidebar = () => {
         <Button
           variant="ghost"
           loading={loggingOut}
-          onClick={handleLogout}
+          onClick={() => void logout()}
           className="text-danger hover:bg-surface-hover w-full justify-start gap-2 rounded-md px-2 py-1.5 text-base hover:cursor-pointer"
         >
           <LogOut size={16} /> Logout
