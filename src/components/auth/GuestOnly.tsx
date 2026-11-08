@@ -1,19 +1,18 @@
 "use client"
 
-import { ME } from "@/graphql/auth/queries"
-import { getAuthToken, removeAuthToken } from "@/lib/auth"
-import { useApolloClient } from "@apollo/client/react"
+import { getAuthToken } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { ReactNode, useEffect, useState } from "react"
 import Button from "../ui/Button"
+import { isAuthenticationError, useAuth } from "./AuthContext"
 
 interface GuestOnlyProps {
   children: ReactNode
 }
 
 const GuestOnly = ({ children }: GuestOnlyProps) => {
-  const client = useApolloClient()
   const router = useRouter()
+  const { refreshUser, clearSession } = useAuth()
 
   const [retryCount, setRetryCount] = useState(0)
   const [status, setStatus] = useState<
@@ -34,37 +33,23 @@ const GuestOnly = ({ children }: GuestOnlyProps) => {
         return
       }
       try {
-        const { data } = await client.query({
-          query: ME,
-          fetchPolicy: "network-only",
-        })
-        if (data?.me) {
+        const user = await refreshUser()
+        if (user) {
           if (active) {
             setStatus("redirecting")
             router.replace("/dashboard")
           }
           return
         }
-        removeAuthToken()
-        await client.clearStore()
+        await clearSession()
         if (active) {
           setStatus("guest")
         }
       } catch (error) {
         if (!active) return
 
-        const message =
-          error instanceof Error ? error.message.toLowerCase() : ""
-
-        const authenticationError =
-          message.includes("authentication required") ||
-          message.includes("unauthorized") ||
-          message.includes("invalid token")
-
-        if (authenticationError) {
-          removeAuthToken()
-          await client.clearStore()
-
+        if (isAuthenticationError(error)) {
+          await clearSession()
           if (active) {
             setStatus("guest")
           }
@@ -77,7 +62,7 @@ const GuestOnly = ({ children }: GuestOnlyProps) => {
     return () => {
       active = false
     }
-  }, [client, router, retryCount])
+  }, [clearSession, refreshUser, router, retryCount])
 
   if (status === "error") {
     return (
