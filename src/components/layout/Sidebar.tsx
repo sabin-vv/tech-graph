@@ -24,7 +24,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="bg-surface border-border my-6 ml-6 flex h-[calc(100dvh-3rem)] min-h-0 w-[min(13rem,calc(100vw-3rem))] flex-col justify-between overflow-y-auto rounded-lg border p-2">
+    <div className="bg-surface border-border ml-6 flex h-full min-h-0 w-[min(13rem,calc(100vw-3rem))] flex-col justify-between overflow-y-auto rounded-lg border p-2 lg:my-6 lg:h-[calc(100dvh-3rem)]">
       <div className="space-y-2">
         <Image
           src="/image/brandLogo.png"

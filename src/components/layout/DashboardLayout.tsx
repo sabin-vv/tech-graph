@@ -61,13 +61,15 @@ const DashboardLayout = ({ children }: DashBoardProps) => {
   return (
     <div className="flex h-dvh w-full">
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 cursor-default bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed top-22 bottom-6 left-0 z-40 w-[min(14.5rem,calc(100vw-1.5rem))] transition-transform duration-200 lg:static lg:z-auto lg:w-auto lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
