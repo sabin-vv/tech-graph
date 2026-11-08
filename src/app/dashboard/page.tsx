@@ -10,8 +10,7 @@ import { Network } from "lucide-react"
 import Button from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
 import PageHeader from "@/components/layout/PageHeader"
-import { ME } from "@/graphql/auth/queries"
-import { useQuery } from "@apollo/client/react"
+import { useAuth } from "@/components/auth/AuthContext"
 
 const getGreeting = () => {
   const hour = new Date().getHours()
@@ -30,13 +29,13 @@ const getServerGreeting = () => "Welcome"
 
 const DashboardPage = () => {
   const router = useRouter()
-  const { data } = useQuery(ME)
+  const { user } = useAuth()
   const greeting = useSyncExternalStore(
     subscribeToGreeting,
     getGreeting,
     getServerGreeting,
   )
-  const name = data?.me?.name.trim()
+  const name = user?.name.trim()
 
   return (
     <DashboardLayout>

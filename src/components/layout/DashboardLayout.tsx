@@ -1,12 +1,9 @@
 "use client"
 
-import { ReactNode, useEffect, useRef, useState } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 import Navbar from "./Navbar"
 import Sidebar from "./Sidebar"
-import { useApolloClient, useQuery } from "@apollo/client/react"
-import { ME } from "@/graphql/auth/queries"
-import { removeAuthToken } from "@/lib/auth"
-import { useRouter } from "next/navigation"
+import { isAuthenticationError, useAuth } from "@/components/auth/AuthContext"
 import { Loader } from "lucide-react"
 
 interface DashBoardProps {
@@ -15,35 +12,24 @@ interface DashBoardProps {
 
 const DashboardLayout = ({ children }: DashBoardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const router = useRouter()
-  const redirecting = useRef(false)
-  const client = useApolloClient()
-
-  const { data, loading, error, refetch } = useQuery(ME, {
-    fetchPolicy: "network-only",
-  })
+  const { user, loading, error, refreshUser, logout } = useAuth()
 
   useEffect(() => {
-    if (loading || data?.me) {
-      return
-    }
+    let active = true
+    void refreshUser()
+      .then((authenticatedUser) => {
+        if (active && !authenticatedUser) void logout()
+      })
+      .catch((requestError: unknown) => {
+        if (active && isAuthenticationError(requestError)) void logout()
+      })
 
-    if (!error?.message.includes("Authentication required")) {
-      return
+    return () => {
+      active = false
     }
+  }, [refreshUser, logout])
 
-    if (redirecting.current) {
-      return
-    }
-    redirecting.current = true
-    removeAuthToken()
-    client.clearStore().finally(() => {
-      router.replace("/login")
-    })
-  }, [loading, error, data, client, router])
-
-  if (error && !error.message.includes("Authentication required")) {
+  if (error && !isAuthenticationError(error)) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4">
         <p className="text-text-secondary">
@@ -52,7 +38,7 @@ const DashboardLayout = ({ children }: DashBoardProps) => {
 
         <button
           type="button"
-          onClick={() => void refetch()}
+          onClick={() => void refreshUser().catch(() => {})}
           className="text-primary hover:underline"
         >
           Try again
@@ -61,7 +47,7 @@ const DashboardLayout = ({ children }: DashBoardProps) => {
     )
   }
 
-  if (loading || !data?.me) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
         <p className="text-text-secondary flex items-center gap-1">
