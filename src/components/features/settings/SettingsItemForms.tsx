@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { settingsNavItems } from "../constants/settings.constants"
+import { settingsNavItems } from "./settings.constants"
 import GeneralForm from "./SettingsForms/GeneralForm"
 import AppearanceForm from "./SettingsForms/AppearanceForm"
 import NotificationForm from "./SettingsForms/NotificationForm"

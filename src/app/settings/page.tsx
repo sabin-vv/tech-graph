@@ -1,6 +1,6 @@
+import SettingsItemForms from "@/components/features/settings/SettingsItemForms"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import PageHeading from "@/components/layout/PageHeading"
-import SettingsItemForms from "../features/settings/components/SettingsItemForms"
 
 const SettingsPage = () => {
   return (

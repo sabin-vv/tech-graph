@@ -1,12 +1,15 @@
 "use client"
 
+import { useMutation, useQuery } from "@apollo/client/react"
 import Button from "@/components/ui/Button"
 import Select from "@/components/ui/Select"
-import { FormEvent, useMemo, useState, useSyncExternalStore } from "react"
+import { USER_SETTINGS } from "@/graphql/settings/queries"
+import { UPDATE_USER_SETTINGS } from "@/graphql/settings/mutations"
+import { useEffect, useState } from "react"
+import type { SubmitEvent } from "react"
 
 const STORAGE_KEY = "techgraph.generalPreferences"
 const STORAGE_EVENT = "techgraph-general-preferences-change"
-const STORAGE_READ_ERROR = "__techgraph_storage_read_error__"
 
 const languageOptions = [
   { value: "en", label: "English" },
@@ -41,100 +44,70 @@ const DEFAULT_PREFERENCES: GeneralPreferences = {
   dateFormat: "yyyy-MM-dd",
 }
 
-const subscribeToPreferences = (callback: () => void) => {
-  window.addEventListener("storage", callback)
-  window.addEventListener(STORAGE_EVENT, callback)
-  return () => {
-    window.removeEventListener("storage", callback)
-    window.removeEventListener(STORAGE_EVENT, callback)
-  }
-}
-
-const getPreferencesSnapshot = () => {
+const syncDatePreferences = (preferences: GeneralPreferences) => {
   try {
-    return window.localStorage.getItem(STORAGE_KEY)
-  } catch {
-    return STORAGE_READ_ERROR
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+    window.dispatchEvent(new Event(STORAGE_EVENT))
+    return true
+  } catch (error) {
+    console.error("Unable to sync date preferences to browser storage", error)
+    return false
   }
-}
-
-const getServerPreferencesSnapshot = () => null
-
-const parseGeneralPreferences = (
-  value: unknown,
-): GeneralPreferences | null => {
-  if (typeof value !== "object" || value === null) return null
-
-  const preferences = value as Record<string, unknown>
-  const language =
-    languageOptions.find(
-      (option) => option.value === (preferences.language ?? "en"),
-    )?.value ?? null
-  const timeZone = timeZoneOptions.find(
-    (option) => option.value === preferences.timeZone,
-  )?.value
-  const dateFormat = dateFormatOptions.find(
-    (option) => option.value === preferences.dateFormat,
-  )?.value
-
-  if (!language || !timeZone || !dateFormat) return null
-
-  return { language, timeZone, dateFormat }
 }
 
 const GeneralForm = () => {
-  const storedPreferences = useSyncExternalStore(
-    subscribeToPreferences,
-    getPreferencesSnapshot,
-    getServerPreferencesSnapshot,
-  )
+  const { data, loading, error: queryError } = useQuery(USER_SETTINGS)
+  const [updateUserSettings, { loading: saving }] =
+    useMutation(UPDATE_USER_SETTINGS)
   const [draftPreferences, setDraftPreferences] =
     useState<GeneralPreferences | null>(null)
   const [status, setStatus] = useState("")
   const [saveError, setSaveError] = useState("")
-  const storedState = useMemo(() => {
-    if (storedPreferences === STORAGE_READ_ERROR) {
-      return {
-        preferences: DEFAULT_PREFERENCES,
-        error: "Unable to access preferences in this browser.",
-      }
-    }
+  const [storageError, setStorageError] = useState("")
+  const savedPreferences = data?.userSettings
+  const preferences =
+    draftPreferences ??
+    (savedPreferences
+      ? {
+          language: savedPreferences.language,
+          timeZone: savedPreferences.timeZone,
+          dateFormat: savedPreferences.dateFormat,
+        }
+      : DEFAULT_PREFERENCES)
+  const error = saveError || queryError?.message || storageError
 
-    if (!storedPreferences) {
-      return { preferences: DEFAULT_PREFERENCES, error: "" }
-    }
+  useEffect(() => {
+    if (!savedPreferences) return
 
-    try {
-      const parsed: unknown = JSON.parse(storedPreferences)
-      const preferences = parseGeneralPreferences(parsed)
-      if (!preferences) {
-        throw new Error("Saved general preferences have an invalid format.")
-      }
-      return { preferences, error: "" }
-    } catch {
-      return {
-        preferences: DEFAULT_PREFERENCES,
-        error:
-          "Saved preferences are invalid. Reset them by saving new values.",
-      }
-    }
-  }, [storedPreferences])
-  const preferences = draftPreferences ?? storedState.preferences
-  const error = storedState.error || saveError
+    syncDatePreferences({
+      language: savedPreferences.language,
+      timeZone: savedPreferences.timeZone,
+      dateFormat: savedPreferences.dateFormat,
+    })
+  }, [savedPreferences])
 
-  const handleSave = (event: FormEvent<HTMLFormElement>) => {
+  const handleSave = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSaveError("")
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
-      window.dispatchEvent(new Event(STORAGE_EVENT))
+      await updateUserSettings({
+        variables: { input: preferences },
+        refetchQueries: [{ query: USER_SETTINGS }],
+      })
+      if (!syncDatePreferences(preferences)) {
+        setStorageError(
+          "Settings were saved to your account, but date preferences could not be synced in this browser.",
+        )
+      } else {
+        setStorageError("")
+      }
       setDraftPreferences(null)
-      setStatus("Preferences saved in this browser.")
-    } catch (saveError) {
-      console.error("Unable to save general preferences", saveError)
+      setStatus("Applied to dates throughout the app")
+    } catch (error) {
+      console.error("Unable to save general preferences", error)
       setStatus("")
-      setSaveError("Unable to save preferences in this browser.")
+      setSaveError("Unable to save preferences to your account.")
     }
   }
 
@@ -169,7 +142,6 @@ const GeneralForm = () => {
               setStatus("")
               setSaveError("")
             }}
-            helperText="This saves your preference; translations are not enabled yet."
           />
 
           <Select
@@ -211,7 +183,9 @@ const GeneralForm = () => {
               </p>
             ) : (
               <p className="text-text-muted text-xs">
-                Preferences are stored only in this browser.
+                {loading
+                  ? "Loading account preferences…"
+                  : "Preferences are saved to your account."}
                 {status && <span className="text-green-400"> {status}</span>}
               </p>
             )}
@@ -225,8 +199,8 @@ const GeneralForm = () => {
             >
               Reset
             </Button>
-            <Button type="submit" disabled={!hasChanges}>
-              Save changes
+            <Button type="submit" disabled={!hasChanges || saving}>
+              {saving ? "Saving…" : "Save changes"}
             </Button>
           </div>
         </div>
