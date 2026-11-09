@@ -8,10 +8,22 @@ const emailSchema = z
 
 const passwordSchema = z
   .string()
+  .min(1, "Password cannot be empty")
   .min(8, "Password contain minimum 8 characters")
   .regex(/[a-z]/, "Password contain minimum 1 lowercase character")
   .regex(/[A-Z]/, "Password contain minimum 1 uppercase character")
   .regex(/[0-9]/, "Password contain minimum 1 number")
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "Confirm your new password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
 
 const nameSchema = z
   .string()
