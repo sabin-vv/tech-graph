@@ -13,6 +13,15 @@ export const LOGIN = graphql(`
   }
 `)
 
+export const CHANGE_PASSWORD = graphql(`
+  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+    changePassword(
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    )
+  }
+`)
+
 export const SIGNUP = graphql(`
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {

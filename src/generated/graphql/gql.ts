@@ -16,6 +16,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 type Documents = {
     "\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n": typeof types.GetRecentActivityDocument,
     "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.LoginDocument,
+    "\n  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {\n    changePassword(\n      currentPassword: $currentPassword\n      newPassword: $newPassword\n    )\n  }\n": typeof types.ChangePasswordDocument,
     "\n  mutation Signup($input: SignupInput!) {\n    signup(input: $input) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.SignupDocument,
     "\n  mutation UpdateProfile($input: UpdateProfileInput!) {\n    updateProfile(input: $input) {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": typeof types.UpdateProfileDocument,
     "\n  query ME {\n    me {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": typeof types.MeDocument,
@@ -43,6 +44,7 @@ type Documents = {
 const documents: Documents = {
     "\n  query GetRecentActivity($limit: Int, $cursor: String) {\n    recentActivity(limit: $limit, cursor: $cursor) {\n      items {\n        id\n        action\n        entityType\n        summary\n        createdAt\n      }\n      nextCursor\n      hasMore\n    }\n  }\n": types.GetRecentActivityDocument,
     "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.LoginDocument,
+    "\n  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {\n    changePassword(\n      currentPassword: $currentPassword\n      newPassword: $newPassword\n    )\n  }\n": types.ChangePasswordDocument,
     "\n  mutation Signup($input: SignupInput!) {\n    signup(input: $input) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.SignupDocument,
     "\n  mutation UpdateProfile($input: UpdateProfileInput!) {\n    updateProfile(input: $input) {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": types.UpdateProfileDocument,
     "\n  query ME {\n    me {\n      id\n      name\n      email\n      jobTitle\n      location\n      bio\n      skills\n      avatarUrl\n    }\n  }\n": types.MeDocument,
@@ -90,6 +92,10 @@ export function graphql(source: "\n  query GetRecentActivity($limit: Int, $curso
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation Login($email: String!, $password: String!) {\n    login(email: $email, password: $password) {\n      token\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {\n    changePassword(\n      currentPassword: $currentPassword\n      newPassword: $newPassword\n    )\n  }\n"): (typeof documents)["\n  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {\n    changePassword(\n      currentPassword: $currentPassword\n      newPassword: $newPassword\n    )\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
